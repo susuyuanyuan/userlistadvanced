@@ -33,8 +33,7 @@ let userSchema = mongoose.Schema(
       required: true,
     },
     superiorID: {
-      type: Number,
-      required: false,
+      type: String,
     },
   },
   { collection: "users" }

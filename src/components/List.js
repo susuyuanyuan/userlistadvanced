@@ -104,7 +104,7 @@ export function UserList() {
   };
 
   return (
-    <div className="grid-container">
+    <div className="container">
       <div className="headers">
         <h1>US Army Personnel Registry</h1>
       </div>
