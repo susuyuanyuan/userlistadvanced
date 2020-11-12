@@ -87,10 +87,14 @@ export const EditUser = ({ match, history }) => {
     );
   };
 
-  const returnSelectableSuperior = () => {
-    return allUsers.map((user) => {
+  const returnSelectableSuperior = (this_user_id) => {
+    let all_other_users = allUsers.map((user) => {
+      if (this_user_id === user._id) {
+        return "";
+      }
       return <option value={user._id}>{user.name}</option>;
     });
+    return all_other_users;
   };
 
   const renderInput = () => {
@@ -177,6 +181,7 @@ export const EditUser = ({ match, history }) => {
               value={superiorID}
               onChange={(e) => setSuperiorID(e.target.value)}
             >
+              <option value=""></option>
               {returnSelectableSuperior(user._id)}
             </select>
           </div>

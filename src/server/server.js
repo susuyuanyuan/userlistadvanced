@@ -27,15 +27,12 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 
 //get users
 app.get("/api/armyUserList/", (req, res) => {
-  console.log("get");
-
   // use find() method to return all Users
   User.find((err, result) => {
     if (err) {
       console.log(err);
       res.status(500).send(err);
     } else {
-      console.log(result);
       res.json(result);
     }
   });
@@ -61,29 +58,102 @@ app.post("/api/armyUserList/", (req, res) => {
   });
 });
 
+const computeUserRankNum = (all_users) => {
+  // first establish the superior pointer such that
+  // we build a initial linked list
+  for (let i = 0; i < all_users.length; i++) {
+    let this_user = all_users[i];
+    if (this_user.superiorID) {
+      this_user.superior = all_users.find(
+        (user) => user._id === this_user.superiorID
+      );
+      console.log(this_user.superior);
+    } else {
+      this_user.superior = null;
+    }
+  }
+
+  // traverse again to find who is has the maximum
+  let max_rank = 0;
+  let max_rank_user = -1;
+  for (let i = 0; i < all_users.length; i++) {
+    let this_user = all_users[i];
+    let this_rank = 0;
+    while (this_user.superior) {
+      console.log(this_user.superiorID);
+      this_user = this_user.superior;
+      this_rank++;
+    }
+    if (this_rank > max_rank) {
+      max_rank = this_rank;
+      max_rank_user = i;
+    }
+    all_users[i].DSNum = this_rank;
+  }
+
+  console.log(max_rank);
+
+  let userToUpdate = [];
+
+  for (let i = 0; i < all_users.length; i++) {
+    if (all_users[i].DSNum > 0) {
+      all_users[i].DSNum = max_rank - all_users[i].DSNum;
+      userToUpdate.push(all_users[i]);
+    }
+  }
+
+  if (max_rank_user >= 0) {
+    // set the max rank user
+    all_users[max_rank_user].DSNum = max_rank;
+    userToUpdate.push(all_users[max_rank_user]);
+  }
+
+  // reverse the rank
+  User.updateMany(userToUpdate);
+};
+
+const updateAllUserDsNum = (res) => {
+  User.find((err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    //
+    console.log("updating All");
+    computeUserRankNum(result);
+    // console.log(typeof result);
+    // result.updateAll();
+
+    res.sendStatus(200);
+  });
+};
+
 // update User
 app.post("/api/armyUserList/:id", (req, res) => {
-  console.log(req.params);
-  console.log(req.body);
   if (req.params.id === null || req.params.id === "") {
     res.status(500).send("Invalid Id");
     return;
   }
 
-  User.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { useFindAndModify: true },
-    function (err, docs) {
-      if (err) {
-        console.log(err);
-        res.status(500).send(err);
-      } else {
-        console.log("Updated: " + req.params.id);
-        res.sendStatus(200);
-      }
+  User.findById(req.params.id, function (err, doc) {
+    if (err) {
+      console.log(err);
+      res.status(500).send(err);
+    } else {
+      let needToUpdate = req.body.superiorID !== doc.superiorID;
+      doc.updateOne(req.body, (err2) => {
+        if (err2) {
+          console.log(err2);
+          res.status(500).send(err2);
+          return;
+        }
+        if (needToUpdate) {
+          updateAllUserDsNum(res);
+        } else {
+          res.sendStatus(200);
+        }
+      });
     }
-  );
+  });
 });
 
 // delete user

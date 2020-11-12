@@ -55,6 +55,7 @@ export function addUser(added_user, history) {
 //update user by id
 export function updateUser(user_id, updated_user, history) {
   return (dispatch, getState) => {
+    console.log("Update with: " + updated_user);
     axios
       .post(URL + "/" + user_id, updated_user)
       .then(() => {

@@ -82,7 +82,7 @@ export function UserList() {
                   <td>{user.phone}</td>
                   <td>{user.email}</td>
                   <td>{superior_name}</td>
-                  <td>need to build direct sudo algorithms</td>
+                  <td>{user.DSNum}</td>
                   <td>
                     <button className="btn btn-light text-primary">
                       <Link to={`/editUser/${user._id}`}>

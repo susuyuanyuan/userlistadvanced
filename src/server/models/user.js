@@ -35,6 +35,9 @@ let userSchema = mongoose.Schema(
     superiorID: {
       type: String,
     },
+    DSNum: {
+      type: Number,
+    },
   },
   { collection: "users" }
 );
