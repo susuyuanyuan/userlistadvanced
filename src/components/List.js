@@ -1,5 +1,5 @@
-import React, { Component, useEffect, useState } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import {
@@ -63,6 +63,15 @@ export function UserList() {
           </thead>
           <tbody>
             {users.map((user) => {
+              let superior_name = null;
+              if (user.superiorID !== "") {
+                let superior = users.find(
+                  (this_user) => this_user._id === user.superiorID
+                );
+                if (superior) {
+                  superior_name = superior.name;
+                }
+              }
               return (
                 <tr key={user._id} className="text-capitalize">
                   <td>need to add upload photo feature</td>
@@ -72,16 +81,11 @@ export function UserList() {
                   <td>{user.startDate}</td>
                   <td>{user.phone}</td>
                   <td>{user.email}</td>
-                  <td>{user.superiorID}</td>
+                  <td>{superior_name}</td>
                   <td>need to build direct sudo algorithms</td>
                   <td>
                     <button className="btn btn-light text-primary">
-                      <Link
-                        to={{
-                          pathname: `/editUser/${user._id}`,
-                          state: user,
-                        }}
-                      >
+                      <Link to={`/editUser/${user._id}`}>
                         <i className="fas fa-pencil-alt"></i> Edit
                       </Link>
                     </button>
@@ -134,39 +138,3 @@ export function UserList() {
     </div>
   );
 }
-
-// const mapStateToProps = (state) => {
-//   return { users: state.displayData };
-// };
-
-// export default connect(mapStateToProps)(UserList);
-
-// componentDidMount() {
-//     const { dispatch } = this.props;
-//     dispatch(getUsers());
-// }
-
-// constructor(props) {
-//     super(props);
-//     this.state = {
-//         currentPage: 1,
-//         usersPerPage: 5,
-//     }
-// }
-
-// delete user
-//   const deleteUser = (id) => {
-//     const { dispatch } = this.props;
-//     dispatch(deleteUser(id));
-//   };
-
-//     render() {
-//         const { users, dispatch } = this.props;
-//         const { usersPerPage, currentPage } = this.state;
-//         const pageNumbers = [];
-//         const recordsPerPage = [5, 10, 15]
-//         for (let i = 1; i <= Math.ceil(users.length / usersPerPage); i++) {
-//             pageNumbers.push(i);
-//         }
-//     }
-// };

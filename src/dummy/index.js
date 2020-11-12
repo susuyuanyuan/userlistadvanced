@@ -46,10 +46,16 @@ var mongoUrl = "mongodb://localhost:27017/armyListTest";
 mongoose.connect(mongoUrl, { useNewUrlParser: true });
 console.log(mongoose.connection.readyState);
 
+// first drop all data
+User.collection.drop();
+
 var db = mongoose.connection;
 db.once("open", function () {
   for (let i = 0; i < 100; i++) {
-    let newUserJson = dummy(User, { ignore: ["_id", "__v", "superiorID"] });
+    let newUserJson = dummy(User, {
+      ignore: ["_id", "__v", "superiorID"],
+      returnDate: true,
+    });
     User.create(newUserJson, (err, result) => {
       if (err) {
         console.log(err);
