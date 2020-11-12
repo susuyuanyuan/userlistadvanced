@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js"
+  },
+  "description": "serves the reset API",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongoose-dummy": "^1.0.8",
+    "nodemon": "^2.0.6"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}
