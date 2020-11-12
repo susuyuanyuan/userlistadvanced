@@ -22,16 +22,20 @@ app.use(cors());
 
 var mongoUrl = "mongodb://localhost:27017/armyListTest";
 // connect to mongodb instance where database is testdb
-mongoose.connect(mongoUrl);
+
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 
 //get users
 app.get("/api/armyUserList/", (req, res) => {
+  console.log("get");
+
   // use find() method to return all Users
   User.find((err, result) => {
     if (err) {
       console.log(err);
       res.status(500).send(err);
     } else {
+      console.log(result);
       res.json(result);
     }
   });
@@ -40,7 +44,7 @@ app.get("/api/armyUserList/", (req, res) => {
 // add user
 app.post("/api/armyUserList/", (req, res) => {
   let newUser = new User(req.body);
-  error = newUser.validateSync();
+  let error = newUser.validateSync();
   if (error) {
     console.log(error);
     res.status(500).send(error);
@@ -109,5 +113,5 @@ app.post("upload", (req, res) => {
 });
 // listen on port 5000
 app.listen(5000, () => {
-  console.log("Server listening on port 3000");
+  console.log("Server listening on port 5000");
 });

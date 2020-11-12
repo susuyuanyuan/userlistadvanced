@@ -1,0 +1,16 @@
+{
+  "name": "dummy-generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "description": "generate fake mongoose data",
+  "dependencies": {
+    "mongoose": "^5.10.13",
+    "mongoose-dummy": ">=1.0.8"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}

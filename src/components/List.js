@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import {
@@ -10,7 +10,7 @@ import {
 } from "../actions/index.js";
 import "./styles.css";
 
-function UserList({ users }) {
+export function UserList() {
   const dispatch = useDispatch();
   // get users
   useEffect(() => {
@@ -41,9 +41,8 @@ function UserList({ users }) {
     );
   };
 
+  const users = useSelector((state) => state.displayData);
   const renderTable = () => {
-    const currentUsers = users;
-
     return (
       <div className="text-center">
         <table className="table table-striped">
@@ -63,7 +62,7 @@ function UserList({ users }) {
             </tr>
           </thead>
           <tbody>
-            {currentUsers.map((user) => {
+            {users.map((user) => {
               return (
                 <tr key={user._id} className="text-capitalize">
                   <td>need to add upload photo feature</td>
@@ -136,11 +135,11 @@ function UserList({ users }) {
   );
 }
 
-const mapStateToProps = (state) => {
-  return { users: state.displayData };
-};
+// const mapStateToProps = (state) => {
+//   return { users: state.displayData };
+// };
 
-export default connect(mapStateToProps)(UserList);
+// export default connect(mapStateToProps)(UserList);
 
 // componentDidMount() {
 //     const { dispatch } = this.props;

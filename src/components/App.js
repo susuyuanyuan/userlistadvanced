@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import UserList from './List.js';
-import AddUser from './AddUser.js'
-import EditUser from './EditUser.js'
+import { UserList } from "./List.js";
+import { AddUser } from "./AddUser.js";
+import EditUser from "./EditUser.js";
 
 const App = () => {
   return (
@@ -16,6 +16,6 @@ const App = () => {
       </div>
     </BrowserRouter>
   );
-}
+};
 
 export default App;

@@ -1,8 +1,8 @@
-let mongoose = require("mongoose");
+const mongoose = require("mongoose");
+const dummy = require("mongoose-dummy");
+
 let genderValues = ["M", "F", "NA"];
-
 let rankValues = ["Soldier", "Captain", "Colonel", "General"];
-
 let userSchema = mongoose.Schema(
   {
     name: {
@@ -42,4 +42,21 @@ let userSchema = mongoose.Schema(
 
 let User = mongoose.model("User", userSchema);
 
-module.exports = User;
+var mongoUrl = "mongodb://localhost:27017/armyListTest";
+mongoose.connect(mongoUrl, { useNewUrlParser: true });
+console.log(mongoose.connection.readyState);
+
+var db = mongoose.connection;
+db.once("open", function () {
+  for (let i = 0; i < 100; i++) {
+    let newUserJson = dummy(User, { ignore: ["_id", "__v", "superiorID"] });
+    User.create(newUserJson, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+      }
+    });
+  }
+  console.log("Finished");
+});

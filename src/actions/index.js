@@ -1,6 +1,6 @@
 // Action creator
 import axios from "axios";
-const URL = "http://localhost:5000/api/userList";
+const URL = "http://localhost:5000/api/armyUserList";
 
 function requestStart() {
   return {
