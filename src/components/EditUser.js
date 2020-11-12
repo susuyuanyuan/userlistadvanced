@@ -21,27 +21,28 @@ export const EditUser = ({ match, history }) => {
 
   console.log(startDate);
 
+  const moment = require("moment");
+  const today = moment(new Date()).format("YYYY-MM-DD");
   let startDateStr;
   if (startDate !== "") {
-    const date = new Date(startDate);
-    startDateStr =
-      date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate();
+    startDateStr = moment(new Date(startDate)).format("YYYY-MM-DD");
   }
 
   const dispatch = useDispatch();
 
   const isValid =
     email !== "" &&
+    name !== "" &&
+    phone !== "" &&
     rank !== "" &&
     startDate !== "" &&
-    name !== "" &&
     sex !== "";
 
   const submitUser = () => {
     if (!isValid) {
       return;
     }
-    const added_user = {
+    const edited_user = {
       _id: id,
       name: name,
       sex: sex,
@@ -51,7 +52,7 @@ export const EditUser = ({ match, history }) => {
       email: email,
       superiorID: superiorID,
     };
-    dispatch(updateUser(id, added_user, history));
+    dispatch(updateUser(id, edited_user, history));
   };
 
   const handleName = (e) => {
@@ -146,7 +147,7 @@ export const EditUser = ({ match, history }) => {
               id="startDate"
               value={startDateStr}
               min="2010-01-01"
-              max="2020-11-12"
+              max={today}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
@@ -177,7 +178,7 @@ export const EditUser = ({ match, history }) => {
               value={superiorID}
               onChange={(e) => setSuperiorID(e.target.value)}
             >
-              {returnSelectableSuperior(user._id)}
+              {returnSelectableSuperior()}
             </select>
           </div>
         </div>
@@ -196,7 +197,6 @@ export const EditUser = ({ match, history }) => {
         </button>
         <button
           className={isValid ? "submit-button" : "submit-disable-button"}
-          disabled={!isValid}
           onClick={submitUser}
         >
           Save

@@ -26,13 +26,18 @@
   align-content: flex-end;
 }
 
-.thead {
+.table-header {
   color: #fbf7f0;
   background-color: #555555;
 }
 
+.th {
+  width: 40px;
+}
+
 .thead-group {
   display: flex;
+  justify-content: space-between;
 }
 
 .sort-button {
@@ -61,5 +66,11 @@
 .user-button-group {
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.user-main {
+  margin-top: 5vh;
+  display: flex;
   justify-content: center;
 }

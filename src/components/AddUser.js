@@ -1,9 +1,9 @@
 import React, { Component, Fragment, useState } from "react";
-import { connect, useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { addUser } from "../actions/index.js";
 
-export function AddUser({ users }) {
+export function AddUser({ users, history }) {
+  // input
   const [name, setName] = useState("");
   const [sex, setSex] = useState("M");
   const [rank, setRank] = useState("Soldier");
@@ -11,15 +11,33 @@ export function AddUser({ users }) {
   const [phone, setPhone] = useState(null);
   const [email, setEmail] = useState("");
   const [superiorID, setSuperiorID] = useState(null);
-  const [isNotEmpty, setIsNotEmpty] = useState(true);
-  const [isValidName, setIsValidName] = useState(false);
-  const [isValidPhone, setIsValidPhone] = useState(false);
-  const [isValidEmail, setIsValidEmail] = useState(false);
+  // validation
+  //   const [isNotEmpty, setIsNotEmpty] = useState(true);
+  //   const [isValidName, setIsValidName] = useState(false);
+  //   const [isValidPhone, setIsValidPhone] = useState(false);
+  //   const [isValidEmail, setIsValidEmail] = useState(false);
+  // for images
+  const [file, setFile] = useState("");
+  const [filename, setFilename] = useState("Choose File");
 
   const dispatch = useDispatch();
-  const history = useHistory();
+
+  const allUsers = useSelector((state) => state.displayData);
+  const moment = require("moment");
+  const today = moment(new Date()).format("YYYY-MM-DD");
+
+  const isValid =
+    email !== "" &&
+    name !== "" &&
+    phone !== "" &&
+    rank !== "" &&
+    startDate !== "" &&
+    sex !== "";
 
   const submitUser = () => {
+    if (!isValid) {
+      return;
+    }
     const added_user = {
       name: name,
       sex: sex,
@@ -32,34 +50,25 @@ export function AddUser({ users }) {
     dispatch(addUser(added_user, history));
   };
 
-  const handleEmpty = () => {
-    const arr = [name, startDate, phone, email];
-    const empty =
-      arr.findIndex(function (ele) {
-        return ele === null;
-      }) < 0
-        ? true
-        : false;
-    setIsNotEmpty(empty);
-    if (isNotEmpty) {
-      submitUser();
-    }
-  };
-
   const handleName = (e) => {
     setName(e.target.value);
-    setIsValidName(e.target.value.match(/[^A-Za-z ]/g) === null);
+    //setIsValidName(e.target.value.match(/[^A-Za-z ]/g) === null);
     console.log();
   };
 
   const handlePhone = (e) => {
     setPhone(e.target.value);
-    setIsValidPhone(e.target.value.match(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/));
+    //setIsValidPhone(e.target.value.match(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/));
   };
 
   const handleEmail = (e) => {
     setEmail(e.target.value);
-    setIsValidEmail(e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g));
+    //setIsValidEmail(e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g));
+  };
+
+  const handleAvatar = (e) => {
+    setFile(e.target.files[0]);
+    setFilename(e.target.files[0].name);
   };
 
   const fileUpLoad = () => {
@@ -67,19 +76,27 @@ export function AddUser({ users }) {
       <Fragment>
         <form>
           <div className="custom-file mb-4">
-            <input type="file" className="custom-file-input" id="avatar" />
-            <label className="custom-file-label" for="customFile">
-              Choose File
+            <input
+              type="file"
+              className="custom-file-input"
+              id="customFile"
+              onChange={handleAvatar}
+            />
+            <label className="custom-file-label" htmlFor="customFile">
+              {filename}
             </label>
           </div>
-          <input
-            type="btn btn-primary btn-block mt-4"
-            value="Upload"
-            className=""
-          />
+
+          <input type="submit" value="Upload" className="submit-button" />
         </form>
       </Fragment>
     );
+  };
+
+  const returnSelectableSuperior = () => {
+    return allUsers.map((user) => {
+      return <option value={user._id}>{user.name}</option>;
+    });
   };
 
   const renderInput = () => {
@@ -130,9 +147,9 @@ export function AddUser({ users }) {
             <input
               type="date"
               id="startDate"
-              value="2020-10-22"
+              value={today}
               min="2010-01-01"
-              max="2020-11-12"
+              max={today}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
@@ -161,8 +178,7 @@ export function AddUser({ users }) {
               id="superior"
               onChange={(e) => setSuperiorID(e.target.value)}
             >
-              <option value="NA">NA</option>
-              <option value="NA">NA</option>
+              {returnSelectableSuperior()}
             </select>
           </div>
         </div>
@@ -170,10 +186,10 @@ export function AddUser({ users }) {
     );
   };
 
-  const validEntry = isNotEmpty && isValidName && isValidPhone && isValidEmail;
+  // const validEntry = isNotEmpty && isValidName && isValidPhone && isValidEmail;
 
   return (
-    <div className="user container">
+    <div className="user-container">
       <div className="headers">
         <h1>New Soldier</h1>
       </div>
@@ -181,15 +197,17 @@ export function AddUser({ users }) {
         <button className="submit-button" onClick={() => history.push("/")}>
           Cancel
         </button>
-        <form onSubmit={() => handleEmpty()}>
-          <button
-            className={validEntry ? "submit-button" : "submit-disable-button"}
-          >
-            Save
-          </button>
-        </form>
+        <button
+          className={isValid ? "submit-button" : "submit-disable-button"}
+          onClick={submitUser}
+        >
+          Save
+        </button>
       </div>
-      {renderInput()}
+      <main className="user-main">
+        <div>{fileUpLoad()}</div>
+        <div>{renderInput()}</div>
+      </main>
     </div>
   );
 }

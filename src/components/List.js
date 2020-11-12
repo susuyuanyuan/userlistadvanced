@@ -8,6 +8,9 @@ import {
   sortUsersAction,
   searchUserAction,
 } from "../actions/index.js";
+//rank.svg
+import rank from "./images/army.jpg";
+import soldier from "./images/soldier.svg";
 import "./styles.css";
 
 export function UserList() {
@@ -23,7 +26,7 @@ export function UserList() {
     const DSC = 1;
     const cname = "fas fa-chevron-";
     return (
-      <th>
+      <th className="th">
         {col_name}
         <button
           className="sort-button"
@@ -47,7 +50,7 @@ export function UserList() {
       <div className="text-center">
         <table className="table table-striped">
           <thead className="thead-primary">
-            <tr className="thead">
+            <tr className="table-header">
               <th>Avatar</th>
               {sortIcon("Name", "name")}
               {sortIcon("Sex", "sex")}
@@ -74,7 +77,14 @@ export function UserList() {
               }
               return (
                 <tr key={user._id} className="text-capitalize">
-                  <td>need to add upload photo feature</td>
+                  <td>
+                    <img
+                      className="logo"
+                      src={soldier}
+                      width="30"
+                      height="30"
+                    />
+                  </td>
                   <td>{user.name}</td>
                   <td>{user.sex}</td>
                   <td>{user.rank}</td>
@@ -110,6 +120,7 @@ export function UserList() {
   return (
     <div className="container">
       <div className="headers">
+        <img src={rank} alt="Logo" width="100" height="100" />
         <h1>US Army Personnel Registry</h1>
       </div>
       <div className="bar">
@@ -138,3 +149,5 @@ export function UserList() {
     </div>
   );
 }
+
+//         <img src={rank} alt="Logo" width="100" height="100" />

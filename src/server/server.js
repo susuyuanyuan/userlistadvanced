@@ -106,11 +106,23 @@ app.delete("/api/armyUserList/:id", (req, res) => {
 });
 
 // Upload Endpoint
-app.post("upload", (req, res) => {
+app.post("/api/armyUserList/upload/:id", (req, res) => {
   if (req.files === null) {
     return res.status(400);
   }
+
+  const file = req.body.file;
+
+  file.mv(`${__dirname}/public/images/${file.name}`, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+
+    res.json({ fileName: file.name, filePath: `../../images/${file.name}` });
+  });
 });
+
 // listen on port 5000
 app.listen(5000, () => {
   console.log("Server listening on port 5000");
