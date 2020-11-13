@@ -56,7 +56,6 @@ export const EditUser = ({ match, history }) => {
 
   const handleName = (e) => {
     setName(e.target.value);
-    console.log();
   };
 
   const handlePhone = (e) => {

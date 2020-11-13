@@ -10,6 +10,11 @@ import {
 } from "../actions/index.js";
 import "./styles.css";
 
+const logo =
+  "https://images-na.ssl-images-amazon.com/images/I/819KR%2BawXhL._AC_SL1500_.jpg";
+const avatar =
+  "https://logos-download.com/wp-content/uploads/2018/06/US_Army_logo_yellow.png";
+
 export function UserList() {
   const dispatch = useDispatch();
   // get users
@@ -74,7 +79,15 @@ export function UserList() {
               }
               return (
                 <tr key={user._id} className="text-capitalize">
-                  <td>need to add upload photo feature</td>
+                  <td>
+                    <img
+                      className="avatar"
+                      src={avatar}
+                      alt="error"
+                      width="30"
+                      height="30"
+                    />
+                  </td>
                   <td>{user.name}</td>
                   <td>{user.sex}</td>
                   <td>{user.rank}</td>
@@ -110,6 +123,7 @@ export function UserList() {
   return (
     <div className="container">
       <div className="headers">
+        <img src={logo} alt="error" width="200" height="200" />
         <h1>US Army Personnel Registry</h1>
       </div>
       <div className="bar">
