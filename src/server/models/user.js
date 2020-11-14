@@ -5,6 +5,11 @@ let rankValues = ["Soldier", "Captain", "Colonel", "General"];
 
 let userSchema = mongoose.Schema(
   {
+    avatar: {
+      type: String,
+      default:
+        "https://logos-download.com/wp-content/uploads/2018/06/US_Army_logo_yellow.png",
+    },
     name: {
       type: String,
       lowercase: true,

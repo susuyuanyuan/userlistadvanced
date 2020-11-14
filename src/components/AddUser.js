@@ -2,42 +2,44 @@ import React, { Component, Fragment, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addUser } from "../actions/index.js";
 
-export function AddUser({ users, history }) {
+export function AddUser({ history }) {
   const dispatch = useDispatch();
+  const allUsers = useSelector((state) => {
+    return state.displayData;
+  });
+
+  // today
+  const today = require("moment")(new Date()).format("YYYY-MM-DD");
   // input
   const [name, setName] = useState("");
   const [sex, setSex] = useState("M");
   const [rank, setRank] = useState("Soldier");
-  const [startDate, setStartDate] = useState(null);
-  const [phone, setPhone] = useState(null);
+  const [startDate, setStartDate] = useState(today);
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [superiorID, setSuperiorID] = useState(null);
   // validation
-  const [error, setError] = useState();
   const isValid =
     email !== "" &&
     name !== "" &&
     phone !== "" &&
     rank !== "" &&
     startDate !== "" &&
-    sex !== "" &&
-    error === "";
+    sex !== "";
   // for images
   const [file, setFile] = useState("");
-  const [filename, setFilename] = useState("Choose File");
-  const [filename, setFilename] = useState("Choose File");
+  const [image, setImage] = useState(
+    "https://logos-download.com/wp-content/uploads/2018/06/US_Army_logo_yellow.png"
+  );
   const logo =
     "https://images-na.ssl-images-amazon.com/images/I/819KR%2BawXhL._AC_SL1500_.jpg";
-
-  // today
-  //const moment = require("moment");
-  const today = require("moment")(new Date()).format("YYYY-MM-DD");
 
   const submitUser = () => {
     if (!isValid) {
       return;
     }
     const added_user = {
+      avatar: file,
       name: name,
       sex: sex,
       rank: rank,
@@ -50,60 +52,57 @@ export function AddUser({ users, history }) {
   };
 
   const handleName = (e) => {
-    setName(e.target.value);
     if (e.target.value.match(/[^A-Za-z ]/g) === null) {
-      setError("Name " + error);
+      setName(e.target.value);
     }
-    console.log();
   };
 
   const handlePhone = (e) => {
-    setPhone(e.target.value);
-    if (e.target.value.match(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/) === null) {
-      setError("Phone " + error);
+    if (e.target.value.match(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/)) {
+      setPhone(e.target.value);
     }
   };
 
   const handleEmail = (e) => {
-    setEmail(e.target.value);
-    if (e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g) === null) {
-      setError("Email " + error);
+    if (e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+      setEmail(e.target.value);
     }
   };
 
   const handleAvatar = (e) => {
     setFile(e.target.files[0]);
-    setFilename(e.target.files[0].name);
     setImage(URL.createObjectURL(e.target.files[0]));
     console.log(file);
+    console.log(image);
   };
 
   const fileUpLoad = () => {
     return (
-      <Fragment>
+      <div>
         <img src={image} width="200" height="200" />
-        <form>
-          <div className="custom-file mb-4">
+        <div className="custom-file mb-4">
+          <button>
+            Choose File
             <input
               type="file"
               className="custom-file-input"
               id="customFile"
               onChange={handleAvatar}
             />
-            <label className="custom-file-label" htmlFor="customFile">
-              {filename}
-            </label>
-          </div>
-
-          <input type="submit" value="Upload" className="submit-button" />
-        </form>
-      </Fragment>
+          </button>
+          <p>{file === "" ? "No file chosen" : file.name}</p>
+        </div>
+      </div>
     );
   };
 
   const returnSelectableSuperior = () => {
     return allUsers.map((user) => {
-      return <option value={user._id}>{user.name}</option>;
+      return (
+        <option value={user._id} key={user._id}>
+          {user.name}
+        </option>
+      );
     });
   };
 
@@ -156,7 +155,7 @@ export function AddUser({ users, history }) {
             <input
               type="date"
               id="startDate"
-              value={today}
+              value={startDate}
               min="2010-01-01"
               max={today}
               onChange={(e) => setStartDate(e.target.value)}
@@ -216,7 +215,9 @@ export function AddUser({ users, history }) {
         <div>{fileUpLoad()}</div>
         <div>{renderInput()}</div>
       </main>
-      <div>{error === "" ? null : error + "not valid"}</div>
+      <div>{name === "" ? "Name is not valid" : null}</div>
+      <div>{phone === "" ? "Phone is not valid" : null}</div>
+      <div>{email === "" ? "Email is not valid" : null}</div>
     </div>
   );
 }

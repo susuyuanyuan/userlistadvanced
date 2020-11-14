@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import {
   getUsers,
@@ -12,10 +12,9 @@ import "./styles.css";
 
 const logo =
   "https://images-na.ssl-images-amazon.com/images/I/819KR%2BawXhL._AC_SL1500_.jpg";
-const avatar =
-  "https://logos-download.com/wp-content/uploads/2018/06/US_Army_logo_yellow.png";
 
 export function UserList() {
+  const history = useHistory();
   const dispatch = useDispatch();
   // get users
   useEffect(() => {
@@ -82,7 +81,7 @@ export function UserList() {
                   <td>
                     <img
                       className="avatar"
-                      src={avatar}
+                      src={user.avatar}
                       alt="error"
                       width="30"
                       height="30"
@@ -141,11 +140,15 @@ export function UserList() {
         </div>
         <div className="button-group">
           <button className="submit-button">Reset</button>
-          <form method="get" action="/addUser">
-            <button type="submit" className="submit-button">
-              New Soldier
-            </button>
-          </form>
+          <button
+            type="submit"
+            className="submit-button"
+            onClick={() => {
+              history.push("/addUser");
+            }}
+          >
+            New Soldier
+          </button>
         </div>
       </div>
       <div className="ui divided list">{renderTable()}</div>

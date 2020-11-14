@@ -59,8 +59,22 @@
   padding: 10px 24px;
 }
 
+.user-container {
+  font-family: "Lucida Console";
+  color: #555555;
+  margin-left: 45vh;
+  margin-right: 45vh;
+  text-align: center;
+}
+
+.user-main {
+  margin-top: 3vh;
+  margin-bottom: 3vh;
+  display: flex;
+}
+
 .user-button-group {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
 }
