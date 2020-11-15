@@ -3,12 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { LOGO_URL } from "./Constants";
 
-import {
-  getUsers,
-  deleteUser,
-  sortUsersAction,
-  searchUserAction,
-} from "../actions/index.js";
+import { getUsers, deleteUser, sortUsersAction } from "../actions/index.js";
 import "./styles.css";
 
 export function UserList() {
@@ -17,7 +12,7 @@ export function UserList() {
   // get allUsers
   useEffect(() => {
     dispatch(getUsers());
-  });
+  }, []);
 
   // sort in back end
   const sortIcon = (col_name, col_id) => {
@@ -54,11 +49,11 @@ export function UserList() {
               {sortIcon("Name", "name")}
               {sortIcon("Sex", "sex")}
               {sortIcon("Rank", "rank")}
-              {sortIcon("Start Date", "stdat")}
+              {sortIcon("Start Date", "startDate")}
               {sortIcon("Phone", "phone")}
               {sortIcon("Email", "email")}
-              {sortIcon("Superior", "superior")}
-              {sortIcon("# of D. S.", "ds")}
+              {sortIcon("Superior", "superior_name")}
+              {sortIcon("# of D. S.", "DSNum")}
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -132,7 +127,7 @@ export function UserList() {
           <input
             type="text"
             placeholder="search"
-            onChange={(e) => dispatch(searchUserAction(e.target.value))}
+            onChange={(e) => dispatch(getUsers(e.target.value))}
           />
           <span className="input-group-btn">
             <button className="btn btn-default" type="submit">

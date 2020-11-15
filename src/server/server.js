@@ -32,6 +32,7 @@ mongoose.connect(mongoUrl, {
 //get users
 app.get("/api/armyUserList/", (req, res) => {
   // use find() method to return all Users
+  console.log(req.params);
   User.find({}, (err, result) => {
     if (err) {
       console.log("Failed to find all: " + err);

@@ -78,9 +78,9 @@ export function sortUsersAction(sortCol, order) {
 }
 
 // search user
-export function searchUserAction(keywords) {
-  return {
-    type: "SEARCH",
-    keywords,
-  };
-}
+// export function searchUserAction(keywords) {
+//   return {
+//     type: "SEARCH",
+//     keywords,
+//   };
+// }
