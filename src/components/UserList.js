@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { LOGO_URL } from "./constants";
+import { LOGO_URL } from "./Constants";
 
 import {
   getUsers,
@@ -99,7 +99,7 @@ export function UserList() {
                   <td>{user.DSNum}</td>
                   <td>
                     <button className="btn btn-light text-primary">
-                      <Link to={`/editUser/${user._id}`}>
+                      <Link to={`/EditUserPage/${user._id}`}>
                         <i className="fas fa-pencil-alt"></i> Edit
                       </Link>
                     </button>
@@ -146,7 +146,7 @@ export function UserList() {
             type="submit"
             className="submit-button"
             onClick={() => {
-              history.push("/addUser");
+              history.push("/UserPage");
             }}
           >
             New Soldier

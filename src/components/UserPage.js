@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "../actions/index.js";
 import Resizer from "react-image-file-resizer";
-import { LOGO_URL } from "./constants";
+import { LOGO_URL } from "./Constants";
 
-export function AddUser({ match, history }) {
+export function UserPage({ match, history }) {
   const dispatch = useDispatch();
   let id = "";
   if (match.params) {
