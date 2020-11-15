@@ -37,27 +37,12 @@ export function getUsers() {
   };
 }
 
-//add an user
-export function addUser(added_user, history) {
-  return (dispatch, getState) => {
-    axios
-      .post(URL, added_user)
-      .then(() => {
-        history.push("/");
-      })
-      .catch((err) => {
-        console.log(err);
-        dispatch(requestFail(err));
-      });
-  };
-}
-
 //update user by id
-export function updateUser(user_id, updated_user, history) {
+export function updateUser(user, history) {
   return (dispatch, getState) => {
-    console.log("Update with: " + updated_user);
+    console.log(user);
     axios
-      .post(URL + "/" + user_id, updated_user)
+      .post(URL + (user._id !== "" ? "/" + user._id : ""), user)
       .then(() => {
         history.push("/");
       })

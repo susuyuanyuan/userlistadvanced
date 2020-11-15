@@ -53,6 +53,9 @@ app.post("/api/armyUserList/", (req, res) => {
   }
   // save new user to db
   newUser.save((err, result) => {
+    if (result.avatar) {
+      console.log("Has Avatar");
+    }
     if (err) {
       console.log("Failed to save: " + err);
       res.status(500).send(err);
@@ -71,7 +74,11 @@ function computeAllDSNum(all_users, res) {
       this_user.superior = all_users.find(
         (user) => user.id === this_user.superiorID
       );
-      this_user.superior.hasDep = true;
+      if (this_user.superior) {
+        this_user.superior.hasDep = true;
+      } else {
+        console.log("Can't find user superior: " + this_user);
+      }
     } else {
       this_user.superior = null;
     }
@@ -125,25 +132,6 @@ function computeAllDSNum(all_users, res) {
     }
   }
 
-  // if (max_rank_user >= 0) {
-  //   let max_ran_user = all_users[max_rank_user];
-  //   // set the max rank user
-  //   max_ran_user.DSNum = max_rank;
-  //   tasks.push(() => {
-  //     User.findByIdAndUpdate(
-  //       max_ran_user._id,
-  //       {
-  //         DSNum: max_ran_user.DSNum,
-  //       },
-  //       (err, result) => {
-  //         if (err) {
-  //           console.log(err);
-  //         }
-  //       }
-  //     );
-  //   });
-  // }
-
   const arrayOfPromises = tasks.map((task) => task());
 
   // call Promise.all on that array
@@ -153,7 +141,8 @@ function computeAllDSNum(all_users, res) {
 }
 
 const findAllAndComputeDSNum = (res) => {
-  User.find({}, (err, users) => {
+  // we only need the superior ID here so we minimize the database query
+  User.find({}, "superiorID", (err, users) => {
     if (err) {
       res.status(500).send(err);
     } else {

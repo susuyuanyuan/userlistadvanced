@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { LOGO_URL } from "./constants";
 
 import {
   getUsers,
@@ -10,16 +11,13 @@ import {
 } from "../actions/index.js";
 import "./styles.css";
 
-const logo =
-  "https://images-na.ssl-images-amazon.com/images/I/819KR%2BawXhL._AC_SL1500_.jpg";
-
 export function UserList() {
   const history = useHistory();
   const dispatch = useDispatch();
-  // get users
+  // get allUsers
   useEffect(() => {
     dispatch(getUsers());
-  }, []);
+  });
 
   // sort in back end
   const sortIcon = (col_name, col_id) => {
@@ -45,7 +43,7 @@ export function UserList() {
     );
   };
 
-  const users = useSelector((state) => state.displayData);
+  const allUsers = useSelector((state) => state.displayData);
   const renderTable = () => {
     return (
       <div className="text-center">
@@ -66,10 +64,10 @@ export function UserList() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => {
+            {allUsers.map((user) => {
               let superior_name = null;
               if (user.superiorID !== "") {
-                let superior = users.find(
+                let superior = allUsers.find(
                   (this_user) => this_user._id === user.superiorID
                 );
                 if (superior) {
@@ -81,7 +79,11 @@ export function UserList() {
                   <td>
                     <img
                       className="avatar"
-                      src={user.avatar}
+                      src={
+                        user.avatar && user.avatar !== ""
+                          ? user.avatar
+                          : LOGO_URL
+                      }
                       alt="error"
                       width="30"
                       height="30"
@@ -122,7 +124,7 @@ export function UserList() {
   return (
     <div className="container">
       <div className="headers">
-        <img src={logo} alt="error" width="200" height="200" />
+        <img src={LOGO_URL} alt="error" width="200" height="200" />
         <h1>US Army Personnel Registry</h1>
       </div>
       <div className="bar">

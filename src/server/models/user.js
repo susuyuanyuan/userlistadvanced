@@ -6,8 +6,7 @@ let rankValues = ["Soldier", "Captain", "Colonel", "General"];
 let userSchema = mongoose.Schema(
   {
     avatar: {
-      data: Buffer,
-      contentType: String,
+      type: String,
     },
     name: {
       type: String,

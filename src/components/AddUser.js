@@ -1,23 +1,47 @@
-import React, { Component, Fragment, useState } from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addUser } from "../actions/index.js";
+import { updateUser } from "../actions/index.js";
+import Resizer from "react-image-file-resizer";
+import { LOGO_URL } from "./constants";
 
-export function AddUser({ history }) {
+export function AddUser({ match, history }) {
   const dispatch = useDispatch();
+  let id = "";
+  if (match.params) {
+    if (match.params.id) {
+      id = match.params.id;
+    }
+  }
+
   const allUsers = useSelector((state) => {
     return state.displayData;
   });
 
+  let user = null;
+  if (id !== "") {
+    user = allUsers.find((user) => user._id === id);
+    if (!user) {
+      console.log("Can't find this user: " + id);
+      history.goBack();
+    }
+  }
+
   // today
   const today = require("moment")(new Date()).format("YYYY-MM-DD");
   // input
-  const [name, setName] = useState("");
-  const [sex, setSex] = useState("M");
-  const [rank, setRank] = useState("Soldier");
-  const [startDate, setStartDate] = useState(today);
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [superiorID, setSuperiorID] = useState(null);
+  const [name, setName] = useState(user ? user.name : "");
+  const [sex, setSex] = useState(user ? user.sex : "M");
+  const [rank, setRank] = useState(user ? user.rank : "Soldier");
+  const [startDate, setStartDate] = useState(user ? user.startDate : today);
+  const [phone, setPhone] = useState(user ? user.phone : "");
+  const [email, setEmail] = useState(user ? user.email : "");
+  const [superiorID, setSuperiorID] = useState(user ? user.superiorID : "");
+  const [imageFile, setImageFile] = useState(
+    user && user.avatar ? user.avatar : ""
+  );
+
+  console.log(user);
+
   // validation
   const isValid =
     email !== "" &&
@@ -26,20 +50,13 @@ export function AddUser({ history }) {
     rank !== "" &&
     startDate !== "" &&
     sex !== "";
-  // for images
-  const [file, setFile] = useState("");
-  const [image, setImage] = useState(
-    "https://logos-download.com/wp-content/uploads/2018/06/US_Army_logo_yellow.png"
-  );
-  const logo =
-    "https://images-na.ssl-images-amazon.com/images/I/819KR%2BawXhL._AC_SL1500_.jpg";
 
   const submitUser = () => {
     if (!isValid) {
       return;
     }
     const added_user = {
-      avatar: file,
+      avatar: imageFile,
       name: name,
       sex: sex,
       rank: rank,
@@ -47,8 +64,9 @@ export function AddUser({ history }) {
       phone: phone,
       email: email,
       superiorID: superiorID,
+      _id: user ? user._id : "",
     };
-    dispatch(addUser(added_user, history));
+    dispatch(updateUser(added_user, history));
   };
 
   const handleName = (e) => {
@@ -64,22 +82,38 @@ export function AddUser({ history }) {
   };
 
   const handleEmail = (e) => {
-    if (e.target.value.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
+    if (e.target.value.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
       setEmail(e.target.value);
     }
   };
 
   const handleAvatar = (e) => {
-    setFile(e.target.files[0]);
-    setImage(URL.createObjectURL(e.target.files[0]));
-    console.log(file);
-    console.log(image);
+    Resizer.imageFileResizer(
+      e.target.files[0],
+      200 /* maxWidth */,
+      200 /* maxHeight */,
+      "JPEG" /* compressFormat */,
+      50 /* quality */,
+      0 /* rotation */,
+      (uri) => {
+        if (uri) {
+          setImageFile(uri);
+        } else {
+          console.log("Failed to read: " + e.target.files[0]);
+        }
+      }
+    );
   };
 
   const fileUpLoad = () => {
     return (
       <div>
-        <img src={image} width="200" height="200" />
+        <img
+          src={imageFile ? imageFile : LOGO_URL}
+          alt="error"
+          width="200"
+          height="200"
+        />
         <div className="custom-file mb-4">
           <button>
             Choose File
@@ -90,17 +124,20 @@ export function AddUser({ history }) {
               onChange={handleAvatar}
             />
           </button>
-          <p>{file === "" ? "No file chosen" : file.name}</p>
+          <p>{imageFile === "" ? "No file chosen" : imageFile.name}</p>
         </div>
       </div>
     );
   };
 
   const returnSelectableSuperior = () => {
-    return allUsers.map((user) => {
+    return allUsers.map((this_user) => {
+      if (user && user._id === this_user._id) {
+        return "";
+      }
       return (
-        <option value={user._id} key={user._id}>
-          {user.name}
+        <option value={this_user._id} key={this_user._id}>
+          {this_user.name}
         </option>
       );
     });
@@ -115,6 +152,7 @@ export function AddUser({ history }) {
           <div className={userInput}>
             <input
               type="text"
+              value={name}
               placeholder="Letters only"
               onChange={(e) => handleName(e)}
             />
@@ -126,6 +164,7 @@ export function AddUser({ history }) {
             <select
               name="rank"
               id="rank"
+              value={rank}
               onChange={(e) => setRank(e.target.value)}
             >
               <option value="Soldier">Soldier</option>
@@ -141,6 +180,7 @@ export function AddUser({ history }) {
             <select
               name="sex"
               id="sex"
+              value={sex}
               onChange={(e) => setSex(e.target.value)}
             >
               <option value="M">Male</option>
@@ -167,6 +207,7 @@ export function AddUser({ history }) {
           <div className={userInput}>
             <input
               type="text"
+              value={phone}
               placeholder="xxx-xxx-xxxx"
               onChange={(e) => handlePhone(e)}
             />
@@ -175,7 +216,7 @@ export function AddUser({ history }) {
         <div className="row">
           <div className={userInput}>Email:</div>
           <div className={userInput}>
-            <input type="text" onChange={(e) => handleEmail(e)} />
+            <input type="text" value={email} onChange={(e) => handleEmail(e)} />
           </div>
         </div>
         <div className="row">
@@ -184,8 +225,10 @@ export function AddUser({ history }) {
             <select
               name="superior"
               id="superior"
+              value={superiorID}
               onChange={(e) => setSuperiorID(e.target.value)}
             >
+              <option value=""></option>
               {returnSelectableSuperior()}
             </select>
           </div>
@@ -197,7 +240,7 @@ export function AddUser({ history }) {
   return (
     <div className="user-container">
       <div className="headers">
-        <img src={logo} alt="error" width="200" height="200" />
+        <img src={LOGO_URL} alt="error" width="200" height="200" />
         <h1>New Soldier</h1>
       </div>
       <div className="user-button-group">
