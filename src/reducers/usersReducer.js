@@ -22,6 +22,19 @@ const usersReducer = (
         originalData: action.users,
         displayData: action.users,
       };
+    case "SEARCH_SUCCESS":
+      // if keywords are empty, then we simply copy the original data back
+      if (action.users === "") {
+        return {
+          ...state,
+          ...state.originalData,
+          displayData: state.originalData,
+        };
+      }
+      return {
+        ...state,
+        displayData: action.users,
+      };
     case "USER_FETCH_FAIL":
       return {
         ...state,

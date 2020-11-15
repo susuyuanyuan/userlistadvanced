@@ -21,6 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 var mongoUrl = "mongodb://localhost:27017/armyListTest";
+const URL_PREFIX = "/api/armyUserList";
 // connect to mongodb instance where database is testdb
 
 mongoose.connect(mongoUrl, {
@@ -30,9 +31,8 @@ mongoose.connect(mongoUrl, {
 });
 
 //get users
-app.get("/api/armyUserList/", (req, res) => {
+app.get(URL_PREFIX + "/User", (req, res) => {
   // use find() method to return all Users
-  console.log(req.params);
   User.find({}, (err, result) => {
     if (err) {
       console.log("Failed to find all: " + err);
@@ -43,8 +43,37 @@ app.get("/api/armyUserList/", (req, res) => {
   });
 });
 
+// update User
+app.post(URL_PREFIX + "/User:id", (req, res) => {
+  if (req.params.id === null || req.params.id === "") {
+    res.status(500).send("Invalid Id");
+    return;
+  }
+
+  User.findById(req.params.id, function (find_err, doc) {
+    if (find_err) {
+      console.log("Failed to find: " + find_err);
+      res.status(500).send(find_err);
+    } else {
+      let needToUpdate = req.body.superiorID !== doc.superiorID;
+      doc.updateOne(req.body, (update_error) => {
+        if (update_error) {
+          console.log("Failed to update: " + update_error);
+          res.status(500).send(update_error);
+          return;
+        }
+        if (needToUpdate) {
+          findAllAndComputeDSNum(res);
+        } else {
+          res.sendStatus(200);
+        }
+      });
+    }
+  });
+});
+
 // add user
-app.post("/api/armyUserList/", (req, res) => {
+app.post(URL_PREFIX + "/User", (req, res) => {
   let newUser = new User(req.body);
   let error = newUser.validateSync();
   if (error) {
@@ -64,6 +93,49 @@ app.post("/api/armyUserList/", (req, res) => {
       res.sendStatus(200);
     }
   });
+});
+
+// delete user
+app.delete(URL_PREFIX + "/User:id", (req, res) => {
+  if (req.params.id === null || req.params.id === "") {
+    res.status(500).send("Invalid Id");
+    return;
+  }
+
+  User.findByIdAndRemove(req.params.id, function (err, docs) {
+    if (err) {
+      console.log("Failed to remove" + err);
+      res.status(500).send(err);
+    } else {
+      console.log("Removed: " + req.params.id);
+      res.sendStatus(200);
+    }
+  });
+});
+
+// Search by keywords
+app.post(URL_PREFIX + "/Search", (req, res) => {
+  if (req.body.regex === null || req.body.regex === "") {
+    res.status(500).send("Invalid regex");
+    return;
+  }
+
+  User.find(
+    {
+      $or: [
+        { name: { $regex: req.body.regex } },
+        { email: { $regex: req.body.regex } },
+      ],
+    },
+    (err, result) => {
+      if (err) {
+        console.log("Failed to find all: " + err);
+        res.status(500).send(err);
+      } else {
+        res.json(result);
+      }
+    }
+  );
 });
 
 function computeAllDSNum(all_users, res) {
@@ -152,59 +224,6 @@ const findAllAndComputeDSNum = (res) => {
   });
 };
 
-// update User
-app.post("/api/armyUserList/:id", (req, res) => {
-  if (req.params.id === null || req.params.id === "") {
-    res.status(500).send("Invalid Id");
-    return;
-  }
-
-  User.findById(req.params.id, function (find_err, doc) {
-    if (find_err) {
-      console.log("Failed to find: " + find_err);
-      res.status(500).send(find_err);
-    } else {
-      let needToUpdate = req.body.superiorID !== doc.superiorID;
-      doc.updateOne(req.body, (update_error) => {
-        if (update_error) {
-          console.log("Failed to update: " + update_error);
-          res.status(500).send(update_error);
-          return;
-        }
-        if (needToUpdate) {
-          findAllAndComputeDSNum(res);
-        } else {
-          res.sendStatus(200);
-        }
-      });
-    }
-  });
-});
-
-// delete user
-app.delete("/api/armyUserList/:id", (req, res) => {
-  if (req.params.id === null || req.params.id === "") {
-    res.status(500).send("Invalid Id");
-    return;
-  }
-
-  User.findByIdAndRemove(req.params.id, function (err, docs) {
-    if (err) {
-      console.log("Failed to remove" + err);
-      res.status(500).send(err);
-    } else {
-      console.log("Removed: " + req.params.id);
-      res.sendStatus(200);
-    }
-  });
-});
-
-// Upload Endpoint
-app.post("upload", (req, res) => {
-  if (req.files === null) {
-    return res.status(400);
-  }
-});
 // listen on port 5000
 app.listen(5000, () => {
   console.log("Server listening on port 5000");
