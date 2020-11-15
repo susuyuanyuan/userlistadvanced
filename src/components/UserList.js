@@ -44,7 +44,7 @@ export function UserList() {
     );
   };
 
-  const allUsers = useSelector((state) => state.displayData);
+  const allUsers = useSelector((state) => state.displayUsers);
   const renderTable = () => {
     return (
       <div className="text-center">

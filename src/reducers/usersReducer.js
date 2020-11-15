@@ -1,12 +1,5 @@
-const compareValue = (order, a, b) => {
-  if (a === b) {
-    return 0;
-  }
-  return a < b ? order : -1 * order;
-};
-
 const usersReducer = (
-  state = { isLoading: false, error: "", displayData: [], originalData: [] },
+  state = { isLoading: false, error: "", displayUsers: [], originalUsers: [] },
   action
 ) => {
   switch (action.type) {
@@ -19,21 +12,21 @@ const usersReducer = (
       return {
         ...state,
         isLoading: false,
-        originalData: action.users,
-        displayData: action.users,
+        originalUsers: action.users,
+        displayUsers: action.users,
       };
-    case "SEARCH_SUCCESS":
-      // if keywords are empty, then we simply copy the original data back
+    case "SET_DISPLAY_USERS":
+      // if users are empty, then we simply copy the original data back
       if (action.users === "") {
         return {
           ...state,
-          ...state.originalData,
-          displayData: state.originalData,
+          ...state.originalUsers,
+          displayUsers: state.originalUsers,
         };
       }
       return {
         ...state,
-        displayData: action.users,
+        displayUsers: action.users,
       };
     case "USER_FETCH_FAIL":
       return {
@@ -41,27 +34,7 @@ const usersReducer = (
         isLoading: false,
         error: action.error,
       };
-    case "SEARCH":
-      return {
-        ...state,
-        displayData: state.originalData.filter(function (user) {
-          return (
-            user.firstName.search(action.keywords) > -1 ||
-            user.lastName.search(action.keywords) > -1
-          );
-        }),
-      };
-    case "SORT":
-      return {
-        ...state,
-        displayData: [...state.displayData].sort(function (a, b) {
-          return compareValue(
-            action.order,
-            a[action.sortCol],
-            b[action.sortCol]
-          );
-        }),
-      };
+
     default:
       return state;
   }

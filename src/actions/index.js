@@ -22,9 +22,9 @@ function requestFail(error) {
   };
 }
 
-function searchSuccess(users) {
+function setDisplayUsers(users) {
   return {
-    type: "SEARCH_SUCCESS",
+    type: "SET_DISPLAY_USERS",
     users,
   };
 }
@@ -75,12 +75,23 @@ export function deleteUser(user_id) {
   };
 }
 
+const compareValue = (order, a, b) => {
+  if (a === b) {
+    return 0;
+  }
+  return a < b ? order : -1 * order;
+};
+
 // sort user
 export function sortUsersAction(sortCol, order) {
-  return {
-    type: "SORT",
-    sortCol,
-    order,
+  return (dispatch, getState) => {
+    dispatch(
+      setDisplayUsers(
+        [...getState().displayUsers].sort(function (a, b) {
+          return compareValue(order, a[sortCol], b[sortCol]);
+        })
+      )
+    );
   };
 }
 
@@ -89,12 +100,12 @@ export function searchUserAction(regex) {
   return (dispatch, getState) => {
     // if regex are empty, then we simply copy the original data back
     if (regex === "") {
-      return dispatch(searchSuccess(""));
+      return dispatch(setDisplayUsers(""));
     }
     axios
       .post(URL + "/Search", { regex })
       .then((res) => {
-        dispatch(searchSuccess(res.data));
+        dispatch(setDisplayUsers(res.data));
       })
       .catch((err) => {
         console.log(err);

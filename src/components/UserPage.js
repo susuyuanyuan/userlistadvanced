@@ -14,7 +14,7 @@ export function UserPage({ match, history }) {
   }
 
   const allUsers = useSelector((state) => {
-    return state.displayData;
+    return state.displayUsers;
   });
 
   let user = null;
@@ -39,8 +39,6 @@ export function UserPage({ match, history }) {
   const [imageFile, setImageFile] = useState(
     user && user.avatar ? user.avatar : ""
   );
-
-  console.log(user);
 
   // validation
   const isValid =
@@ -88,6 +86,7 @@ export function UserPage({ match, history }) {
   };
 
   const handleAvatar = (e) => {
+    // we use image resizer to read the image and resize&compress image here
     Resizer.imageFileResizer(
       e.target.files[0],
       200 /* maxWidth */,
