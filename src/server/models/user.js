@@ -38,12 +38,19 @@ let userSchema = mongoose.Schema(
     superiorID: {
       type: String,
     },
+    // superior name are just for reference such that
+    // we can use it in sort
+    superiorName: {
+      type: String,
+    },
     DSNum: {
       type: Number,
     },
   },
   { collection: "users" }
 );
+
+userSchema.plugin(require("mongoose-paginate-v2"));
 
 let User = mongoose.model("User", userSchema);
 

@@ -8,9 +8,16 @@ function requestStart() {
   };
 }
 
-function requestSuccess(users) {
+function requestFetchOverwrite(users) {
   return {
-    type: "USER_FETCH_SUCCESS",
+    type: "USER_FETCH_OVERWRITE",
+    users,
+  };
+}
+
+function requestFetchAppend(users) {
+  return {
+    type: "USER_FETCH_APPEND",
     users,
   };
 }
@@ -22,23 +29,52 @@ function requestFail(error) {
   };
 }
 
-function setDisplayUsers(users) {
+function setTotalUserCount(count) {
   return {
-    type: "SET_DISPLAY_USERS",
-    users,
+    type: "SET_TOTAL_USER_COUNT",
+    count,
+  };
+}
+
+const USER_API = "/User";
+
+export function setSortColOrder(sortCol, sortOrder) {
+  return {
+    type: "SET_SORT_COL_ORDER",
+    sortCol,
+    sortOrder,
   };
 }
 
 // get users
-export function getUsers() {
+export function getUsers(offset, limit, sortCol, order, overwrite) {
   return (dispatch, getState) => {
     dispatch(requestStart());
+    console.log("getUser");
     axios
-      .get(URL + "/User")
+      .get(
+        URL +
+          USER_API +
+          "?offset=" +
+          offset +
+          "&limit=" +
+          limit +
+          "&sortCol=" +
+          sortCol +
+          "&order=" +
+          order
+      )
       .then((response) => {
-        dispatch(requestSuccess(response.data));
+        const allUsers = response.data.docs;
+        if (overwrite) {
+          dispatch(requestFetchOverwrite(allUsers));
+        } else {
+          dispatch(requestFetchAppend(allUsers));
+        }
+        dispatch(setTotalUserCount(response.data.totalDocs));
       })
       .catch((err) => {
+        console.log(err);
         dispatch(requestFail(err));
       });
   };
@@ -47,9 +83,8 @@ export function getUsers() {
 //update user by id
 export function updateUser(user, history) {
   return (dispatch, getState) => {
-    console.log(user);
     axios
-      .post(URL + "/User" + (user._id !== "" ? "/" + user._id : ""), user)
+      .post(URL + USER_API, user)
       .then(() => {
         history.push("/");
       })
@@ -61,12 +96,16 @@ export function updateUser(user, history) {
 }
 
 //delete user by id
-export function deleteUser(user_id) {
+export function deleteUser(user_id, history) {
+  if (user_id === "") {
+    console.log("Passing empty user");
+    return;
+  }
   return (dispatch, getState) => {
     axios
-      .delete(URL + "/User/" + user_id)
+      .delete(URL + USER_API + "/" + user_id)
       .then(() => {
-        dispatch(getUsers());
+        history.go(0);
       })
       .catch((err) => {
         console.log(err);
@@ -75,37 +114,19 @@ export function deleteUser(user_id) {
   };
 }
 
-const compareValue = (order, a, b) => {
-  if (a === b) {
-    return 0;
-  }
-  return a < b ? order : -1 * order;
-};
-
-// sort user
-export function sortUsersAction(sortCol, order) {
-  return (dispatch, getState) => {
-    dispatch(
-      setDisplayUsers(
-        [...getState().displayUsers].sort(function (a, b) {
-          return compareValue(order, a[sortCol], b[sortCol]);
-        })
-      )
-    );
-  };
-}
-
 // search user
 export function searchUserAction(regex) {
   return (dispatch, getState) => {
     // if regex are empty, then we simply copy the original data back
     if (regex === "") {
-      return dispatch(setDisplayUsers(""));
+      console.log("Passing empty regex");
+      return;
     }
+    console.log("Search with: " + regex);
     axios
       .post(URL + "/Search", { regex })
       .then((res) => {
-        dispatch(setDisplayUsers(res.data));
+        dispatch(requestFetchOverwrite(res.data));
       })
       .catch((err) => {
         console.log(err);

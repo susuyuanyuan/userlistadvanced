@@ -14,7 +14,7 @@ export function UserPage({ match, history }) {
   }
 
   const allUsers = useSelector((state) => {
-    return state.displayUsers;
+    return state.allUsers;
   });
 
   let user = null;
@@ -36,6 +36,9 @@ export function UserPage({ match, history }) {
   const [phone, setPhone] = useState(user ? user.phone : "");
   const [email, setEmail] = useState(user ? user.email : "");
   const [superiorID, setSuperiorID] = useState(user ? user.superiorID : "");
+  const [superiorName, setSuperiorName] = useState(
+    user ? user.superiorName : ""
+  );
   const [imageFile, setImageFile] = useState(
     user && user.avatar ? user.avatar : ""
   );
@@ -62,8 +65,10 @@ export function UserPage({ match, history }) {
       phone: phone,
       email: email,
       superiorID: superiorID,
+      superiorName: superiorName,
       _id: user ? user._id : "",
     };
+
     dispatch(updateUser(added_user, history));
   };
 
@@ -140,6 +145,19 @@ export function UserPage({ match, history }) {
         </option>
       );
     });
+  };
+
+  const handleSuperior = (superiorID) => {
+    if (superiorID !== "") {
+      const superior = allUsers.find((user) => user._id === superiorID);
+      if (superior) {
+        setSuperiorID(superior._id);
+        setSuperiorName(superior.name);
+      }
+    } else {
+      setSuperiorID("");
+      setSuperiorName("");
+    }
   };
 
   const userInput = "col-sm mt-2 mb-2";
@@ -225,7 +243,7 @@ export function UserPage({ match, history }) {
               name="superior"
               id="superior"
               value={superiorID}
-              onChange={(e) => setSuperiorID(e.target.value)}
+              onChange={(e) => handleSuperior(e.target.value)}
             >
               <option value=""></option>
               {returnSelectableSuperior()}

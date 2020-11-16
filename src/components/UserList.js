@@ -1,13 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { LOGO_URL } from "./Constants";
+import InfiniteScroll from "react-infinite-scroll-component";
+import UserEntry from "./UserEntry";
 
 import {
   getUsers,
-  deleteUser,
-  sortUsersAction,
   searchUserAction,
+  setSortColOrder,
 } from "../actions/index.js";
 
 import "./styles.css";
@@ -15,28 +16,36 @@ import "./styles.css";
 export function UserList() {
   const history = useHistory();
   const dispatch = useDispatch();
-  // get allUsers
+  const allUsers = useSelector((state) => state.allUsers);
+  const error = useSelector((state) => state.error);
+  const sortCol = useSelector((state) => state.sortCol);
+  const sortOrder = useSelector((state) => state.sortOrder);
+
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
+    if (error === "NOT_INITIALIZED") {
+      dispatch(getUsers(0, 10, sortCol, sortOrder, true));
+    }
+  }, [dispatch, error, sortCol, sortOrder]);
 
   // sort in back end
-  const sortIcon = (col_name, col_id) => {
-    const ASC = -1;
-    const DSC = 1;
+  const sortIcon = (colName, colId) => {
     const cname = "fas fa-chevron-";
     return (
       <th>
-        {col_name}
+        {colName}
         <button
           className="sort-button"
-          onClick={() => dispatch(sortUsersAction(col_id, ASC))}
+          onClick={() => {
+            dispatch(setSortColOrder(colId, "desc"));
+          }}
         >
           <i className={cname + "up"}></i>
         </button>
         <button
           className="sort-button"
-          onClick={() => dispatch(sortUsersAction(col_id, DSC))}
+          onClick={() => {
+            dispatch(setSortColOrder(colId, "asc"));
+          }}
         >
           <i className={cname + "down"}></i>
         </button>
@@ -44,11 +53,30 @@ export function UserList() {
     );
   };
 
-  const allUsers = useSelector((state) => state.displayUsers);
-  const renderTable = () => {
+  const [hasMoreUser, setHasMoreUser] = useState(true);
+  const isLoading = useSelector((state) => state.isLoading);
+  const totalUserCount = useSelector((state) => state.totalUserCount);
+
+  const rowLimit = 10;
+
+  const getMoreUsers = () => {
+    if (isLoading) {
+      return;
+    }
+    if (allUsers.length >= totalUserCount) {
+      console.log("current user length: ", allUsers.length);
+      setHasMoreUser(false);
+      return;
+    }
+
+    dispatch(getUsers(allUsers.length, rowLimit, sortCol, sortOrder, false));
+    setHasMoreUser(true);
+  };
+
+  const renderTableHead = () => {
     return (
       <div className="text-center">
-        <table className="table table-striped">
+        <table id="tableHeader" className="table table-striped">
           <thead className="thead-primary">
             <tr className="thead">
               <th>Avatar</th>
@@ -58,66 +86,51 @@ export function UserList() {
               {sortIcon("Start Date", "startDate")}
               {sortIcon("Phone", "phone")}
               {sortIcon("Email", "email")}
-              {sortIcon("Superior", "superior_name")}
+              {sortIcon("Superior", "superiorName")}
               {sortIcon("# of D. S.", "DSNum")}
               <th>Edit</th>
               <th>Delete</th>
             </tr>
           </thead>
-          <tbody>
-            {allUsers.map((user) => {
-              let superior_name = null;
-              if (user.superiorID !== "") {
-                let superior = allUsers.find(
-                  (this_user) => this_user._id === user.superiorID
-                );
-                if (superior) {
-                  superior_name = superior.name;
-                }
-              }
-              return (
-                <tr key={user._id} className="text-capitalize">
-                  <td>
-                    <img
-                      className="avatar"
-                      src={
-                        user.avatar && user.avatar !== ""
-                          ? user.avatar
-                          : LOGO_URL
-                      }
-                      alt="error"
-                      width="30"
-                      height="30"
-                    />
-                  </td>
-                  <td>{user.name}</td>
-                  <td>{user.sex}</td>
-                  <td>{user.rank}</td>
-                  <td>{user.startDate}</td>
-                  <td>{user.phone}</td>
-                  <td>{user.email}</td>
-                  <td>{superior_name}</td>
-                  <td>{user.DSNum}</td>
-                  <td>
-                    <button className="btn btn-light text-primary">
-                      <Link to={`/EditUserPage/${user._id}`}>
-                        <i className="fas fa-pencil-alt"></i> Edit
-                      </Link>
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-light text-danger"
-                      onClick={() => dispatch(deleteUser(user._id))}
-                    >
-                      <i className="fas fa-trash-alt"></i> Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
+          <tbody></tbody>
         </table>
+      </div>
+    );
+  };
+
+  const renderTableContent = () => {
+    return (
+      <div
+        className="text-center"
+        id="scrollDev"
+        style={{ height: 400, overflow: "auto" }}
+      >
+        <InfiniteScroll
+          dataLength={allUsers.length}
+          next={getMoreUsers}
+          hasMore={hasMoreUser}
+          loader={<h4>Loading...</h4>}
+          scrollableTarget="scrollDev"
+          endMessage={
+            <p style={{ textAlign: "center" }}>
+              <b>That's all</b>
+            </p>
+          }
+        >
+          <table id="tableContent" className="table table-striped">
+            <thead></thead>
+            <tbody>
+              {allUsers.map((user) => (
+                <UserEntry
+                  user={user}
+                  dispatch={dispatch}
+                  history={history}
+                  key={user._id}
+                />
+              ))}
+            </tbody>
+          </table>
+        </InfiniteScroll>
       </div>
     );
   };
@@ -154,7 +167,8 @@ export function UserList() {
           </button>
         </div>
       </div>
-      <div className="ui divided list">{renderTable()}</div>
+      <div className="ui divided list">{renderTableHead()}</div>
+      <div className="ui divided list">{renderTableContent()}</div>
     </div>
   );
 }

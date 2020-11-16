@@ -36,6 +36,12 @@ let userSchema = mongoose.Schema(
       type: Number,
       required: false,
     },
+    superiorName: {
+      type: String,
+    },
+    DSNum: {
+      type: Number,
+    },
   },
   { collection: "users" }
 );
@@ -53,7 +59,7 @@ var db = mongoose.connection;
 db.once("open", function () {
   for (let i = 0; i < 100; i++) {
     let newUserJson = dummy(User, {
-      ignore: ["_id", "__v", "superiorID"],
+      ignore: ["_id", "__v", "superiorID", "superiorName", "DSNum"],
       returnDate: true,
     });
     User.create(newUserJson, (err, result) => {
