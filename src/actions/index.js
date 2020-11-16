@@ -106,7 +106,7 @@ export function updateUser(user, history) {
 }
 
 //delete user by id
-export function deleteUser(user_id, history) {
+export function deleteUser(user_id) {
   if (user_id === "") {
     console.error("Passing empty user");
     return;
@@ -115,7 +115,7 @@ export function deleteUser(user_id, history) {
     axios
       .delete(URL + USER_API + "/" + user_id)
       .then(() => {
-        history.go(0);
+        dispatch(setRunStatus(RUN_STATUS.FETCH_NEW));
       })
       .catch((err) => {
         console.error(err);

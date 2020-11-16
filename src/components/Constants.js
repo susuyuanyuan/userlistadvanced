@@ -4,6 +4,6 @@ export const LOGO_URL =
 export const RUN_STATUS = {
   FETCH_NEW: 1,
   LOADING: 2,
-  READY: 3,
+  READY_FOR_MORE: 3,
   FAILED: 4,
 };

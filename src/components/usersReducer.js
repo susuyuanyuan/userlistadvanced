@@ -22,6 +22,7 @@ const usersReducer = (
       return {
         ...state,
         ...state.allUsers,
+        runStats: RUN_STATUS.READY_FOR_MORE,
         allUsers: action.overwrite
           ? action.users
           : state.allUsers.concat(action.users),

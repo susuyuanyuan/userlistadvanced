@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { LOGO_URL } from "./Constants";
@@ -19,13 +19,20 @@ export function UserList() {
   const sortCol = useSelector((state) => state.sortCol);
   const sortOrder = useSelector((state) => state.sortOrder);
   const regex = useSelector((state) => state.regex);
-  const [hasMoreUser, setHasMoreUser] = useState(true);
   const totalUserCount = useSelector((state) => state.totalUserCount);
+
+  console.log(
+    "current user length: " +
+      allUsers.length +
+      " total count: " +
+      totalUserCount
+  );
 
   useEffect(() => {
     if (runStats === RUN_STATUS.FETCH_NEW) {
-      setHasMoreUser(true);
-      dispatch(getUsers(0, 10, sortCol, sortOrder, regex, true));
+      dispatch(
+        getUsers(0, 10, sortCol, sortOrder, regex, true /* overwrite */)
+      );
     }
   }, [dispatch, runStats, sortCol, sortOrder, regex]);
 
@@ -58,20 +65,24 @@ export function UserList() {
   const rowLimit = 10;
 
   const getMoreUsers = () => {
-    if (runStats !== RUN_STATUS.READY) {
+    if (runStats !== RUN_STATUS.READY_FOR_MORE) {
       return;
     }
 
-    console.log("current user length: ", allUsers.length);
     if (allUsers.length >= totalUserCount) {
-      setHasMoreUser(false);
       return;
     }
 
     dispatch(
-      getUsers(allUsers.length, rowLimit, sortCol, sortOrder, regex, false)
+      getUsers(
+        allUsers.length,
+        rowLimit,
+        sortCol,
+        sortOrder,
+        regex,
+        false /* do not overwrite */
+      )
     );
-    setHasMoreUser(true);
   };
 
   const renderTableHead = () => {
@@ -122,12 +133,7 @@ export function UserList() {
             <thead></thead>
             <tbody>
               {allUsers.map((user) => (
-                <UserEntry
-                  user={user}
-                  dispatch={dispatch}
-                  history={history}
-                  key={user._id}
-                />
+                <UserEntry user={user} dispatch={dispatch} key={user._id} />
               ))}
             </tbody>
           </table>

@@ -6,7 +6,6 @@ import { deleteUser } from "../actions/index.js";
 const UserEntry = (props) => {
   const user = props.user;
   const dispatch = props.dispatch;
-  const history = props.history;
   return (
     <tr key={user._id} className="text-capitalize">
       <td>
@@ -36,7 +35,7 @@ const UserEntry = (props) => {
       <td>
         <button
           className="btn btn-light text-danger"
-          onClick={() => dispatch(deleteUser(user._id, history))}
+          onClick={() => dispatch(deleteUser(user._id))}
         >
           <i className="fas fa-trash-alt"></i> Delete
         </button>
