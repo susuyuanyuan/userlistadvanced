@@ -1,10 +1,12 @@
 // Action creator
 import axios from "axios";
+import { RUN_STATUS } from "../components/Constants";
 const URL = "http://localhost:5000/api/armyUserList";
 
-function requestStart() {
+function setRunStatus(runStats) {
   return {
-    type: "USER_FETCH_START",
+    type: "SET_RUN_STATUS",
+    runStats,
   };
 }
 
@@ -49,8 +51,7 @@ export function setSortColOrder(sortCol, sortOrder) {
 // get users
 export function getUsers(offset, limit, sortCol, order, overwrite) {
   return (dispatch, getState) => {
-    dispatch(requestStart());
-    console.log("getUser");
+    dispatch(setRunStatus(RUN_STATUS.LOADING));
     axios
       .get(
         URL +
@@ -71,10 +72,11 @@ export function getUsers(offset, limit, sortCol, order, overwrite) {
         } else {
           dispatch(requestFetchAppend(allUsers));
         }
+        dispatch(setRunStatus(RUN_STATUS.READY));
         dispatch(setTotalUserCount(response.data.totalDocs));
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         dispatch(requestFail(err));
       });
   };
@@ -89,7 +91,7 @@ export function updateUser(user, history) {
         history.push("/");
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         dispatch(requestFail(err));
       });
   };
@@ -98,7 +100,7 @@ export function updateUser(user, history) {
 //delete user by id
 export function deleteUser(user_id, history) {
   if (user_id === "") {
-    console.log("Passing empty user");
+    console.error("Passing empty user");
     return;
   }
   return (dispatch, getState) => {
@@ -108,7 +110,7 @@ export function deleteUser(user_id, history) {
         history.go(0);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         dispatch(requestFail(err));
       });
   };
@@ -119,17 +121,17 @@ export function searchUserAction(regex) {
   return (dispatch, getState) => {
     // if regex are empty, then we simply copy the original data back
     if (regex === "") {
-      console.log("Passing empty regex");
+      console.error("Passing empty regex");
       return;
     }
-    console.log("Search with: " + regex);
+    dispatch(setRunStatus(RUN_STATUS.SEARCH));
     axios
       .post(URL + "/Search", { regex })
       .then((res) => {
         dispatch(requestFetchOverwrite(res.data));
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
         dispatch(requestFail(err));
       });
   };

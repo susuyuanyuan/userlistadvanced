@@ -5,6 +5,8 @@ import { LOGO_URL } from "./Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserEntry from "./UserEntry";
 
+import { RUN_STATUS } from "./Constants";
+
 import {
   getUsers,
   searchUserAction,
@@ -17,15 +19,15 @@ export function UserList() {
   const history = useHistory();
   const dispatch = useDispatch();
   const allUsers = useSelector((state) => state.allUsers);
-  const error = useSelector((state) => state.error);
+  const runStats = useSelector((state) => state.runStats);
   const sortCol = useSelector((state) => state.sortCol);
   const sortOrder = useSelector((state) => state.sortOrder);
 
   useEffect(() => {
-    if (error === "NOT_INITIALIZED") {
+    if (runStats === RUN_STATUS.INITIAL) {
       dispatch(getUsers(0, 10, sortCol, sortOrder, true));
     }
-  }, [dispatch, error, sortCol, sortOrder]);
+  }, [dispatch, runStats, sortCol, sortOrder]);
 
   // sort in back end
   const sortIcon = (colName, colId) => {
@@ -54,15 +56,20 @@ export function UserList() {
   };
 
   const [hasMoreUser, setHasMoreUser] = useState(true);
-  const isLoading = useSelector((state) => state.isLoading);
   const totalUserCount = useSelector((state) => state.totalUserCount);
 
   const rowLimit = 10;
 
   const getMoreUsers = () => {
-    if (isLoading) {
+    if (runStats === RUN_STATUS.SEARCH) {
+      setHasMoreUser(false);
       return;
     }
+
+    if (runStats !== RUN_STATUS.READY) {
+      return;
+    }
+
     if (allUsers.length >= totalUserCount) {
       console.log("current user length: ", allUsers.length);
       setHasMoreUser(false);

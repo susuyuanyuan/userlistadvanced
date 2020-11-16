@@ -3,7 +3,6 @@ let User = require("../models/user.js");
 
 //get users
 userRouter.get("/", (req, res) => {
-  console.log(req.query);
   // use find() method to return all Users
   User.paginate(
     {},
@@ -14,10 +13,9 @@ userRouter.get("/", (req, res) => {
     },
     (err, result) => {
       if (err) {
-        console.log("Failed to find all: " + err);
+        console.error("Failed to find all: " + err);
         res.status(500).send(err);
       } else {
-        console.log(result);
         res.json(result);
       }
     }
@@ -25,10 +23,9 @@ userRouter.get("/", (req, res) => {
 });
 
 userRouter.get("/count", (req, res) => {
-  console.log("count num docs");
   User.countDocuments({}, (err, count) => {
     if (err) {
-      console.log("Failed to find all: " + err);
+      console.error("Failed to find all: " + err);
       res.status(500).send(err);
     } else {
       res.json(count);
@@ -43,17 +40,17 @@ userRouter.post("/", (req, res) => {
     let newUser = new User(req.body);
     let error = newUser.validateSync();
     if (error) {
-      console.log("Failed to validate: " + error);
+      console.error("Failed to validate: " + error);
       res.status(500).send(error);
       return;
     }
     // save new user to db
     newUser.save((err, result) => {
       if (result.avatar) {
-        console.log("Has Avatar");
+        console.error("Has Avatar");
       }
       if (err) {
-        console.log("Failed to save: " + err);
+        console.error("Failed to save: " + err);
         res.status(500).send(err);
       } else {
         res.sendStatus(200);
@@ -64,13 +61,13 @@ userRouter.post("/", (req, res) => {
 
   User.findById(user._id, function (find_err, doc) {
     if (find_err) {
-      console.log("Failed to find: " + find_err);
+      console.error("Failed to find: " + find_err);
       res.status(500).send(find_err);
     } else {
       let needToUpdate = req.body.superiorID !== doc.superiorID;
       doc.updateOne(req.body, (update_error) => {
         if (update_error) {
-          console.log("Failed to update: " + update_error);
+          console.error("Failed to update: " + update_error);
           res.status(500).send(update_error);
           return;
         }
@@ -93,7 +90,7 @@ userRouter.delete("/:id", (req, res) => {
 
   User.findByIdAndRemove(req.params.id, function (err, docs) {
     if (err) {
-      console.log("Failed to remove" + err);
+      console.error("Failed to remove" + err);
       res.status(500).send(err);
     } else {
       console.log("Removed: " + req.params.id);
@@ -114,7 +111,7 @@ function computeAllDSNum(all_users, res) {
       if (this_user.superior) {
         this_user.superior.hasDep = true;
       } else {
-        console.log("Can't find user superior: " + this_user);
+        console.error("Can't find user superior: " + this_user);
       }
     } else {
       this_user.superior = null;
@@ -161,7 +158,7 @@ function computeAllDSNum(all_users, res) {
           },
           (err, result) => {
             if (err) {
-              console.log(err);
+              console.error(err);
             }
           }
         );

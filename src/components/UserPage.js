@@ -21,7 +21,7 @@ export function UserPage({ match, history }) {
   if (id !== "") {
     user = allUsers.find((user) => user._id === id);
     if (!user) {
-      console.log("Can't find this user: " + id);
+      console.error("Can't find this user: " + id);
       history.goBack();
     }
   }
@@ -103,7 +103,7 @@ export function UserPage({ match, history }) {
         if (uri) {
           setImageFile(uri);
         } else {
-          console.log("Failed to read: " + e.target.files[0]);
+          console.error("Failed to read: " + e.target.files[0]);
         }
       }
     );

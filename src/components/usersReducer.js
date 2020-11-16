@@ -1,7 +1,9 @@
+import { RUN_STATUS } from "./Constants";
+
 const usersReducer = (
   state = {
-    isLoading: false,
-    error: "NOT_INITIALIZED",
+    runStats: RUN_STATUS.INITIAL,
+    error: "",
     allUsers: [],
     totalUserCount: 0,
     sortCol: "startDate",
@@ -10,23 +12,20 @@ const usersReducer = (
   action
 ) => {
   switch (action.type) {
-    case "USER_FETCH_START":
+    case "SET_RUN_STATUS":
       return {
         ...state,
-        isLoading: true,
+        runStats: action.runStats,
       };
     case "USER_FETCH_APPEND":
       return {
         ...state,
-        isLoading: false,
         ...state.allUsers,
         allUsers: state.allUsers.concat(action.users),
       };
     case "USER_FETCH_OVERWRITE":
-      console.log(action.users);
       return {
         ...state,
-        isLoading: false,
         allUsers: action.users,
       };
     case "SET_TOTAL_USER_COUNT":
@@ -43,7 +42,7 @@ const usersReducer = (
     case "USER_FETCH_FAIL":
       return {
         ...state,
-        isLoading: false,
+        runStats: RUN_STATUS.FAILED,
         error: action.error,
       };
 
