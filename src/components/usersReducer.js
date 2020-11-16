@@ -2,12 +2,13 @@ import { RUN_STATUS } from "./Constants";
 
 const usersReducer = (
   state = {
-    runStats: RUN_STATUS.INITIAL,
+    runStats: RUN_STATUS.FETCH_NEW,
     error: "",
     allUsers: [],
     totalUserCount: 0,
     sortCol: "startDate",
     sortOrder: "desc",
+    regex: "",
   },
   action
 ) => {
@@ -17,25 +18,19 @@ const usersReducer = (
         ...state,
         runStats: action.runStats,
       };
-    case "USER_FETCH_APPEND":
+    case "USER_FETCH_SUCCESS":
       return {
         ...state,
         ...state.allUsers,
-        allUsers: state.allUsers.concat(action.users),
-      };
-    case "USER_FETCH_OVERWRITE":
-      return {
-        ...state,
-        allUsers: action.users,
-      };
-    case "SET_TOTAL_USER_COUNT":
-      return {
-        ...state,
-        totalUserCount: action.count,
+        allUsers: action.overwrite
+          ? action.users
+          : state.allUsers.concat(action.users),
+        totalUserCount: action.totalUserCount,
       };
     case "SET_SORT_COL_ORDER":
       return {
         ...state,
+        runStats: RUN_STATUS.FETCH_NEW,
         sortCol: action.sortCol,
         sortOrder: action.sortOrder,
       };
@@ -45,7 +40,12 @@ const usersReducer = (
         runStats: RUN_STATUS.FAILED,
         error: action.error,
       };
-
+    case "SET_REGEX":
+      return {
+        ...state,
+        runStats: RUN_STATUS.FETCH_NEW,
+        regex: action.regex,
+      };
     default:
       return state;
   }

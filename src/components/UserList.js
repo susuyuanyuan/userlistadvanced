@@ -7,11 +7,7 @@ import UserEntry from "./UserEntry";
 
 import { RUN_STATUS } from "./Constants";
 
-import {
-  getUsers,
-  searchUserAction,
-  setSortColOrder,
-} from "../actions/index.js";
+import { getUsers, setRegex, setSortColOrder } from "../actions/index.js";
 
 import "./styles.css";
 
@@ -22,12 +18,16 @@ export function UserList() {
   const runStats = useSelector((state) => state.runStats);
   const sortCol = useSelector((state) => state.sortCol);
   const sortOrder = useSelector((state) => state.sortOrder);
+  const regex = useSelector((state) => state.regex);
+  const [hasMoreUser, setHasMoreUser] = useState(true);
+  const totalUserCount = useSelector((state) => state.totalUserCount);
 
   useEffect(() => {
-    if (runStats === RUN_STATUS.INITIAL) {
-      dispatch(getUsers(0, 10, sortCol, sortOrder, true));
+    if (runStats === RUN_STATUS.FETCH_NEW) {
+      setHasMoreUser(true);
+      dispatch(getUsers(0, 10, sortCol, sortOrder, regex, true));
     }
-  }, [dispatch, runStats, sortCol, sortOrder]);
+  }, [dispatch, runStats, sortCol, sortOrder, regex]);
 
   // sort in back end
   const sortIcon = (colName, colId) => {
@@ -55,28 +55,22 @@ export function UserList() {
     );
   };
 
-  const [hasMoreUser, setHasMoreUser] = useState(true);
-  const totalUserCount = useSelector((state) => state.totalUserCount);
-
   const rowLimit = 10;
 
   const getMoreUsers = () => {
-    if (runStats === RUN_STATUS.SEARCH) {
-      setHasMoreUser(false);
-      return;
-    }
-
     if (runStats !== RUN_STATUS.READY) {
       return;
     }
 
+    console.log("current user length: ", allUsers.length);
     if (allUsers.length >= totalUserCount) {
-      console.log("current user length: ", allUsers.length);
       setHasMoreUser(false);
       return;
     }
 
-    dispatch(getUsers(allUsers.length, rowLimit, sortCol, sortOrder, false));
+    dispatch(
+      getUsers(allUsers.length, rowLimit, sortCol, sortOrder, regex, false)
+    );
     setHasMoreUser(true);
   };
 
@@ -115,7 +109,7 @@ export function UserList() {
         <InfiniteScroll
           dataLength={allUsers.length}
           next={getMoreUsers}
-          hasMore={hasMoreUser}
+          hasMore={allUsers.length < totalUserCount}
           loader={<h4>Loading...</h4>}
           scrollableTarget="scrollDev"
           endMessage={
@@ -153,7 +147,9 @@ export function UserList() {
           <input
             type="text"
             placeholder="search"
-            onChange={(e) => dispatch(searchUserAction(e.target.value))}
+            onChange={(e) => {
+              dispatch(setRegex(e.target.value));
+            }}
           />
           <span className="input-group-btn">
             <button className="btn btn-default" type="submit">

@@ -3,9 +3,15 @@ let User = require("../models/user.js");
 
 //get users
 userRouter.get("/", (req, res) => {
+  console.log(req.query);
   // use find() method to return all Users
   User.paginate(
-    {},
+    {
+      $or: [
+        { name: { $regex: req.query.regex } },
+        { email: { $regex: req.query.regex } },
+      ],
+    },
     {
       offset: req.query.offset,
       limit: req.query.limit,
