@@ -27,7 +27,6 @@ console.log(mongoose.connection.readyState);
 
 const ROUTE_PREFIX = "/api/armyUserList";
 app.use(ROUTE_PREFIX + "/User", require("./routers/userRouter"));
-app.use(ROUTE_PREFIX + "/Search", require("./routers/searchRouter"));
 
 // listen on port 5000
 const PORT_NUM = 5000;

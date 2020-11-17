@@ -90,8 +90,9 @@ export function getUsers(offset, limit, sortCol, order, regex, overwrite) {
   };
 }
 
-//update user by id
+// update or add user
 export function updateUser(user, history) {
+  console.log(user);
   return (dispatch, getState) => {
     axios
       .post(URL + USER_API, user)
@@ -105,7 +106,7 @@ export function updateUser(user, history) {
   };
 }
 
-//delete user by id
+// delete user by id
 export function deleteUser(user_id) {
   if (user_id === "") {
     console.error("Passing empty user");

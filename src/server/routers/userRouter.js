@@ -42,6 +42,7 @@ userRouter.get("/count", (req, res) => {
 // update User
 userRouter.post("/", (req, res) => {
   const user = req.body;
+  console.log(user);
   if (user._id === null || user._id === "") {
     let newUser = new User(req.body);
     let error = newUser.validateSync();

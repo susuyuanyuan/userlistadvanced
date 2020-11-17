@@ -43,14 +43,17 @@ export function UserPage({ match, history }) {
     user && user.avatar ? user.avatar : ""
   );
 
+  const validName = name.match(/[^A-Za-z ]/g) === null;
+  const validPhone = phone.match(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/);
+  const validEmail = email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g);
   // validation
   const isValid =
-    email !== "" &&
-    name !== "" &&
-    phone !== "" &&
     rank !== "" &&
     startDate !== "" &&
-    sex !== "";
+    sex !== "" &&
+    validName &&
+    validPhone &&
+    validEmail;
 
   const submitUser = () => {
     if (!isValid) {
@@ -66,28 +69,10 @@ export function UserPage({ match, history }) {
       email: email,
       superiorID: superiorID,
       superiorName: superiorName,
-      _id: user ? user._id : "",
+      _id: user ? user._id : null,
     };
 
     dispatch(updateUser(added_user, history));
-  };
-
-  const handleName = (e) => {
-    if (e.target.value.match(/[^A-Za-z ]/g) === null) {
-      setName(e.target.value);
-    }
-  };
-
-  const handlePhone = (e) => {
-    if (e.target.value.match(/^[0-9]{3}-[0-9]{3}-[0-9]{4}$/)) {
-      setPhone(e.target.value);
-    }
-  };
-
-  const handleEmail = (e) => {
-    if (e.target.value.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
-      setEmail(e.target.value);
-    }
   };
 
   const handleAvatar = (e) => {
@@ -171,7 +156,7 @@ export function UserPage({ match, history }) {
               type="text"
               value={name}
               placeholder="Letters only"
-              onChange={(e) => handleName(e)}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
         </div>
@@ -226,14 +211,18 @@ export function UserPage({ match, history }) {
               type="text"
               value={phone}
               placeholder="xxx-xxx-xxxx"
-              onChange={(e) => handlePhone(e)}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
         </div>
         <div className="row">
           <div className={userInput}>Email:</div>
           <div className={userInput}>
-            <input type="text" value={email} onChange={(e) => handleEmail(e)} />
+            <input
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
         </div>
         <div className="row">
@@ -267,6 +256,7 @@ export function UserPage({ match, history }) {
         <button
           className={isValid ? "submit-button" : "submit-disable-button"}
           onClick={submitUser}
+          disabled={!isValid}
         >
           Save
         </button>
@@ -275,9 +265,9 @@ export function UserPage({ match, history }) {
         <div>{fileUpLoad()}</div>
         <div>{renderInput()}</div>
       </main>
-      <div>{name === "" ? "Name is not valid" : null}</div>
-      <div>{phone === "" ? "Phone is not valid" : null}</div>
-      <div>{email === "" ? "Email is not valid" : null}</div>
+      <div>{!validName ? "Name is not valid" : null}</div>
+      <div>{!validPhone ? "Phone is not valid" : null}</div>
+      <div>{!validEmail ? "Email is not valid" : null}</div>
     </div>
   );
 }
