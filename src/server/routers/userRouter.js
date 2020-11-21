@@ -4,28 +4,45 @@ let User = require("../models/user.js");
 //get users
 userRouter.get("/", (req, res) => {
   console.log(req.query);
+  // update :use if else, id should use findById
   // use find() method to return all Users
-  User.paginate(
-    {
-      $or: [
-        { name: { $regex: req.query.regex } },
-        { email: { $regex: req.query.regex } },
-      ],
-    },
-    {
-      offset: req.query.offset,
-      limit: req.query.limit,
-      sort: { [req.query.sortCol]: req.query.order },
-    },
-    (err, result) => {
+  if (req.query.id !== "") {
+    User.findById(req.query.id, (err, result) => {
       if (err) {
-        console.error("Failed to find all: " + err);
+        console.error("Failed to find superior" + err);
         res.status(500).send(err);
       } else {
-        res.json(result);
+        res.json({ docs: [result], totalDocs: 1 });
       }
-    }
-  );
+    });
+  } else {
+    User.paginate(
+      {
+        $or: [
+          { name: { $regex: req.query.regex } },
+          { rank: { $regex: req.query.regex } },
+          { sex: { $regex: req.query.regex } },
+          { phone: { $regex: req.query.regex } },
+          { email: { $regex: req.query.regex } },
+          { superiorName: { $regex: req.query.regex } },
+        ],
+      },
+      {
+        offset: req.query.offset,
+        limit: req.query.limit,
+        sort: { [req.query.sortCol]: req.query.order },
+      },
+      (err, result) => {
+        if (err) {
+          console.error("Failed to find all: " + err);
+          res.status(500).send(err);
+        } else {
+          res.json(result);
+          console.log(result.totalDocs);
+        }
+      }
+    );
+  }
 });
 
 userRouter.get("/count", (req, res) => {

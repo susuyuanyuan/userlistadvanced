@@ -1,13 +1,18 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { LOGO_URL } from "./Constants";
+import { LOGO_URL } from "../reducers/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserEntry from "./UserEntry";
 
-import { RUN_STATUS } from "./Constants";
+import { RUN_STATUS } from "../reducers/Constants";
 
-import { getUsers, setRegex, setSortColOrder } from "../actions/index.js";
+import {
+  getUsers,
+  setRegex,
+  setID,
+  setSortColOrder,
+} from "../actions/index.js";
 
 import "./styles.css";
 
@@ -20,21 +25,15 @@ export function UserList() {
   const sortOrder = useSelector((state) => state.sortOrder);
   const regex = useSelector((state) => state.regex);
   const totalUserCount = useSelector((state) => state.totalUserCount);
-
-  console.log(
-    "current user length: " +
-      allUsers.length +
-      " total count: " +
-      totalUserCount
-  );
+  const id = useSelector((state) => state.id);
 
   useEffect(() => {
     if (runStats === RUN_STATUS.FETCH_NEW) {
       dispatch(
-        getUsers(0, 10, sortCol, sortOrder, regex, true /* overwrite */)
+        getUsers(0, 10, sortCol, sortOrder, regex, id, true /* overwrite */)
       );
     }
-  }, [dispatch, runStats, sortCol, sortOrder, regex]);
+  }, [dispatch, runStats, sortCol, sortOrder, regex, id]);
 
   // sort in back end
   const sortIcon = (colName, colId) => {
@@ -45,7 +44,7 @@ export function UserList() {
         <button
           className="sort-button"
           onClick={() => {
-            dispatch(setSortColOrder(colId, "desc"));
+            dispatch(setSortColOrder(colId, "asc"));
           }}
         >
           <i className={cname + "up"}></i>
@@ -53,7 +52,7 @@ export function UserList() {
         <button
           className="sort-button"
           onClick={() => {
-            dispatch(setSortColOrder(colId, "asc"));
+            dispatch(setSortColOrder(colId, "desc"));
           }}
         >
           <i className={cname + "down"}></i>
@@ -80,9 +79,15 @@ export function UserList() {
         sortCol,
         sortOrder,
         regex,
+        id,
         false /* do not overwrite */
       )
     );
+  };
+
+  const handleReset = () => {
+    dispatch(setID(""));
+    dispatch(getUsers(0, 10, "startDate", "desc", "", "", true));
   };
 
   const renderTableHead = () => {
@@ -153,18 +158,27 @@ export function UserList() {
           <input
             type="text"
             placeholder="search"
+            value={regex}
             onChange={(e) => {
               dispatch(setRegex(e.target.value));
             }}
           />
           <span className="input-group-btn">
-            <button className="btn btn-default" type="submit">
+            <button
+              className="btn btn-default"
+              type="submit"
+              onClick={(e) => {
+                dispatch(setRegex(""));
+              }}
+            >
               <i className="fas fa-times"></i>
             </button>
           </span>
         </div>
         <div className="button-group">
-          <button className="submit-button">Reset</button>
+          <button className="submit-button" onClick={() => handleReset()}>
+            Reset
+          </button>
           <button
             type="submit"
             className="submit-button"

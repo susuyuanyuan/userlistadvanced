@@ -1,6 +1,6 @@
 // Action creator
 import axios from "axios";
-import { RUN_STATUS } from "../components/Constants";
+import { RUN_STATUS } from "../reducers/Constants";
 const URL = "http://localhost:5000/api/armyUserList";
 
 function setRunStatus(runStats) {
@@ -33,6 +33,25 @@ function setRegexAction(regex) {
   };
 }
 
+export function setRegex(regex) {
+  return (dispatch, getState) => {
+    dispatch(setRegexAction(regex));
+  };
+}
+
+function setIDAction(id) {
+  return {
+    type: "SET_ID",
+    id,
+  };
+}
+
+export function setID(id) {
+  return (dispatch, getState) => {
+    dispatch(setIDAction(id));
+  };
+}
+
 function setSortColOrderAction(sortCol, sortOrder) {
   return {
     type: "SET_SORT_COL_ORDER",
@@ -41,22 +60,15 @@ function setSortColOrderAction(sortCol, sortOrder) {
   };
 }
 
-const USER_API = "/User";
-
 export function setSortColOrder(sortCol, sortOrder) {
   return (dispatch, getState) => {
     dispatch(setSortColOrderAction(sortCol, sortOrder));
   };
 }
 
-export function setRegex(regex) {
-  return (dispatch, getState) => {
-    dispatch(setRegexAction(regex));
-  };
-}
-
+const USER_API = "/User";
 // get users
-export function getUsers(offset, limit, sortCol, order, regex, overwrite) {
+export function getUsers(offset, limit, sortCol, order, regex, id, overwrite) {
   return (dispatch, getState) => {
     dispatch(setRunStatus(RUN_STATUS.LOADING));
     axios
@@ -72,7 +84,9 @@ export function getUsers(offset, limit, sortCol, order, regex, overwrite) {
           "&order=" +
           order +
           "&regex=" +
-          regex
+          regex +
+          "&id=" +
+          id
       )
       .then((response) => {
         dispatch(
@@ -97,6 +111,7 @@ export function updateUser(user, history) {
     axios
       .post(URL + USER_API, user)
       .then(() => {
+        dispatch(setRunStatus(RUN_STATUS.FETCH_NEW));
         history.push("/");
       })
       .catch((err) => {

@@ -28,8 +28,8 @@
 }
 
 .thead {
-  color: #fbf7f0;
-  background-color: #555555;
+  color: #555555;
+  background-color: #e7dec8;
 }
 
 .thead-group {
@@ -43,7 +43,7 @@
 
 .submit-button {
   color: #555555;
-  background-color: #cdc9c3;
+  background-color: #e7dec8;
   font-weight: bold;
   border-radius: 3px;
   padding: 10px 24px;
@@ -51,7 +51,7 @@
 }
 
 .submit-disable-button {
-  color: #27496d;
+  color: #fbf7f0;
   background-color: #dddddd;
   cursor: not-allowed;
   font-weight: bold;
@@ -77,4 +77,13 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+.file-button {
+  color: #555555;
+  background-color: #e7dec8;
+  width: 150px;
+  height: 50px;
+  text-align: center;
+  align-items: center;
 }

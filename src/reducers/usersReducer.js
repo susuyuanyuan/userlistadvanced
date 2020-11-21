@@ -9,6 +9,7 @@ const usersReducer = (
     sortCol: "startDate",
     sortOrder: "desc",
     regex: "",
+    id: "",
   },
   action
 ) => {
@@ -46,6 +47,12 @@ const usersReducer = (
         ...state,
         runStats: RUN_STATUS.FETCH_NEW,
         regex: action.regex,
+      };
+    case "SET_ID":
+      return {
+        ...state,
+        runStats: RUN_STATUS.FETCH_NEW,
+        id: action.id,
       };
     default:
       return state;

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUser } from "../actions/index.js";
 import Resizer from "react-image-file-resizer";
-import { LOGO_URL } from "./Constants";
+import { LOGO_URL } from "../reducers/Constants.js";
 
 export function UserPage({ match, history }) {
   const dispatch = useDispatch();
@@ -98,19 +98,20 @@ export function UserPage({ match, history }) {
     return (
       <div>
         <img
+          className="mt-2 mb-2"
           src={imageFile ? imageFile : LOGO_URL}
           alt="error"
           width="200"
           height="200"
         />
-        <div className="custom-file mb-4">
-          <button>
+        <div className="custom-file">
+          <button className="file-button">
             Choose File
             <input
               type="file"
               className="custom-file-input"
               id="customFile"
-              onChange={handleAvatar}
+              onChange={(e) => handleAvatar(e)}
             />
           </button>
           <p>{imageFile === "" ? "No file chosen" : imageFile.name}</p>

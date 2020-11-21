@@ -1,11 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { LOGO_URL } from "./Constants";
-import { deleteUser } from "../actions/index.js";
+import { useSelector } from "react-redux";
+import { LOGO_URL } from "../reducers/Constants";
+import { deleteUser, setID } from "../actions/index.js";
 
 const UserEntry = (props) => {
   const user = props.user;
   const dispatch = props.dispatch;
+  const formatDate = (date) => {
+    return require("moment")(date).format("YYYY-MM-DD");
+  };
   return (
     <tr key={user._id} className="text-capitalize">
       <td>
@@ -20,10 +24,23 @@ const UserEntry = (props) => {
       <td>{user.name}</td>
       <td>{user.sex}</td>
       <td>{user.rank}</td>
-      <td>{user.startDate}</td>
-      <td>{user.phone}</td>
-      <td>{user.email}</td>
-      <td>{user.superiorName}</td>
+      <td>{formatDate(user.startDate)}</td>
+      <td>
+        <a href={`skype:+1${user.phone}?call`}>{user.phone}</a>
+      </td>
+      <td>
+        <a href={`mailto: ${user.email}`}>{user.email}</a>
+      </td>
+      <td>
+        <Link
+          to={"/"}
+          onClick={(e) => {
+            dispatch(setID(user.superiorID));
+          }}
+        >
+          {user.superiorName}
+        </Link>
+      </td>
       <td>{user.DSNum}</td>
       <td>
         <button className="btn btn-light text-primary">
