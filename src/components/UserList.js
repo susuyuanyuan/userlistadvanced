@@ -20,6 +20,7 @@ export function UserList() {
   const history = useHistory();
   const dispatch = useDispatch();
   const allUsers = useSelector((state) => state.allUsers);
+  
   const runStats = useSelector((state) => state.runStats);
   const sortCol = useSelector((state) => state.sortCol);
   const sortOrder = useSelector((state) => state.sortOrder);

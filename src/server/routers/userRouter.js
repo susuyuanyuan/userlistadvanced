@@ -95,11 +95,7 @@ userRouter.post("/", (req, res) => {
           res.status(500).send(update_error);
           return;
         }
-        if (needToUpdate) {
-          findAllAndComputeDSNum(res);
-        } else {
-          res.sendStatus(200);
-        }
+        res.sendStatus(200);
       });
     }
   });
@@ -122,91 +118,5 @@ userRouter.delete("/:id", (req, res) => {
     }
   });
 });
-
-function computeAllDSNum(all_users, res) {
-  // first establish the superior pointer such that
-  // we build a initial linked list
-  for (let i = 0; i < all_users.length; i++) {
-    let this_user = all_users[i];
-    if (this_user.superiorID) {
-      this_user.superior = all_users.find(
-        (user) => user.id === this_user.superiorID
-      );
-      if (this_user.superior) {
-        this_user.superior.hasDep = true;
-      } else {
-        console.error("Can't find user superior: " + this_user);
-      }
-    } else {
-      this_user.superior = null;
-    }
-    this_user.idInt = i;
-  }
-
-  // traverse again to find who is has the maximum
-  let max_rank = 0;
-  // let max_rank_user = -1;
-  for (let i = 0; i < all_users.length; i++) {
-    let this_user = all_users[i];
-    let this_rank = 0;
-    let visited = new Set();
-    visited.add(this_user.idInt);
-
-    while (this_user.superior) {
-      this_user = this_user.superior;
-      if (visited.has(this_user.idInt)) {
-        break;
-      }
-      visited.add(this_user.idInt);
-      this_rank++;
-    }
-
-    if (this_rank > max_rank) {
-      max_rank = this_rank;
-      // max_rank_user = i;
-    }
-    all_users[i].DSNum = this_rank;
-  }
-
-  // reverse the rank
-  const tasks = [];
-  for (let i = 0; i < all_users.length; i++) {
-    if (all_users[i].hasDep) {
-      let this_user = all_users[i];
-      this_user.DSNum = max_rank - this_user.DSNum;
-      tasks.push(() => {
-        User.findByIdAndUpdate(
-          this_user._id,
-          {
-            DSNum: this_user.DSNum,
-          },
-          (err, result) => {
-            if (err) {
-              console.error(err);
-            }
-          }
-        );
-      });
-    }
-  }
-
-  const arrayOfPromises = tasks.map((task) => task());
-
-  // call Promise.all on that array
-  Promise.all(arrayOfPromises).then((result) => {
-    res.sendStatus(200);
-  });
-}
-
-const findAllAndComputeDSNum = (res) => {
-  // we only need the superior ID here so we minimize the database query
-  User.find({}, "superiorID", (err, users) => {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      computeAllDSNum(users, res);
-    }
-  });
-};
 
 module.exports = userRouter;
