@@ -10,10 +10,9 @@ function setRunStatus(runStats) {
   };
 }
 
-function requestFetchSuccess(overwrite, users, totalUserCount) {
+function requestFetchSuccess(users, totalUserCount) {
   return {
     type: "USER_FETCH_SUCCESS",
-    overwrite,
     users,
     totalUserCount,
   };
@@ -67,9 +66,21 @@ export function setSortColOrder(sortCol, sortOrder) {
 }
 
 const USER_API = "/User";
+
+// use map to filter duplicates
+function deDupUsers(users) {
+  var seen = new Set();
+  return users.filter(function (user) {
+    return seen.has(user._id) ? false : seen.add(user._id);
+  });
+}
+
 // get users
 export function getUsers(offset, limit, sortCol, order, regex, id, overwrite) {
   return (dispatch, getState) => {
+    if (getState().runStats === RUN_STATUS.LOADING) {
+      return;
+    }
     dispatch(setRunStatus(RUN_STATUS.LOADING));
     axios
       .get(
@@ -89,13 +100,10 @@ export function getUsers(offset, limit, sortCol, order, regex, id, overwrite) {
           id
       )
       .then((response) => {
-        dispatch(
-          requestFetchSuccess(
-            overwrite,
-            response.data.docs,
-            response.data.totalDocs
-          )
-        );
+        const newUsers = overwrite
+          ? response.data.docs
+          : deDupUsers(getState().allUsers.concat(response.data.docs));
+        dispatch(requestFetchSuccess(newUsers, response.data.totalDocs));
       })
       .catch((err) => {
         console.error(err);

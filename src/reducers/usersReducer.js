@@ -24,9 +24,7 @@ const usersReducer = (
         ...state,
         ...state.allUsers,
         runStats: RUN_STATUS.READY_FOR_MORE,
-        allUsers: action.overwrite
-          ? action.users
-          : state.allUsers.concat(action.users),
+        allUsers: action.users,
         totalUserCount: action.totalUserCount,
       };
     case "SET_SORT_COL_ORDER":
