@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
-const dummy = require("mongoose-dummy");
+const faker = require('faker');
+const { get } = require("mongoose");
 
 let genderValues = ["M", "F", "NA"];
+
 let rankValues = ["Soldier", "Captain", "Colonel", "General"];
+
 let userSchema = mongoose.Schema(
   {
+    avatar: {
+      type: String,
+    },
     name: {
       type: String,
       lowercase: true,
@@ -33,9 +39,10 @@ let userSchema = mongoose.Schema(
       required: true,
     },
     superiorID: {
-      type: Number,
-      required: false,
+      type: String,
     },
+    // superior name are just for reference such that
+    // we can use it in sort
     superiorName: {
       type: String,
     },
@@ -48,27 +55,34 @@ let userSchema = mongoose.Schema(
 
 let User = mongoose.model("User", userSchema);
 
-var mongoUrl = "mongodb://localhost:27017/armyListTest";
-mongoose.connect(mongoUrl, { useNewUrlParser: true });
+let mongoUrl = "mongodb://localhost:27017/armyListTest";
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 console.log(mongoose.connection.readyState);
 
 // first drop all data
 User.collection.drop();
 
-var db = mongoose.connection;
-db.once("open", function () {
-  for (let i = 0; i < 100; i++) {
-    let newUserJson = dummy(User, {
-      ignore: ["_id", "__v", "superiorID", "superiorName", "DSNum"],
-      returnDate: true,
-    });
-    User.create(newUserJson, (err, result) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(result);
-      }
-    });
-  }
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+let promises = [];
+
+for (let i = 0; i < 100; i++) {
+  let newUserJson = {
+    name: faker.name.findName(),
+    email: faker.internet.email(),
+    phone: faker.phone.phoneNumberFormat(),
+    startDate: faker.date.past(),
+    sex: genderValues[getRandomInt(genderValues.length)],
+    rank: rankValues[getRandomInt(rankValues.length)]
+  };
+  promises.push(User.create(newUserJson));
+}
+
+Promise.all(promises).then(values=>{
+  console.log(values);
   console.log("Finished");
-});
+})
+
+

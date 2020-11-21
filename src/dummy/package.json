@@ -7,10 +7,9 @@
   },
   "description": "generate fake mongoose data",
   "dependencies": {
-    "mongoose": "^5.10.13",
-    "mongoose-dummy": ">=1.0.8"
+    "faker": "^4.1.0",
+    "mongoose": "^5.10.13"
   },
-  "devDependencies": {},
   "author": "",
   "license": "ISC"
 }
