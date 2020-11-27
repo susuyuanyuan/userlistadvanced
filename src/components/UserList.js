@@ -10,7 +10,7 @@ import { RUN_STATUS } from "../reducers/Constants";
 import {
   getUsers,
   setRegex,
-  setID,
+  setReset,
   setSortColOrder,
 } from "../actions/index.js";
 
@@ -86,11 +86,6 @@ export function UserList() {
     );
   };
 
-  const handleReset = () => {
-    dispatch(setID(""));
-    dispatch(getUsers(0, 10, "startDate", "desc", "", "", true));
-  };
-
   const renderTableHead = () => {
     return (
       <div className="text-center">
@@ -105,7 +100,7 @@ export function UserList() {
               {sortIcon("Phone", "phone")}
               {sortIcon("Email", "email")}
               {sortIcon("Superior", "superiorName")}
-              {sortIcon("# of D. S.", "DSNum")}
+              {sortIcon("# of D. S.", "directReport")}
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -177,7 +172,10 @@ export function UserList() {
           </span>
         </div>
         <div className="button-group">
-          <button className="submit-button" onClick={() => handleReset()}>
+          <button
+            className="submit-button"
+            onClick={() => dispatch(setReset())}
+          >
             Reset
           </button>
           <button

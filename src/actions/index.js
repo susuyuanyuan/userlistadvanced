@@ -25,6 +25,18 @@ function requestFail(error) {
   };
 }
 
+function setResetAction() {
+  return {
+    type: "RESET",
+  };
+}
+
+export function setReset() {
+  return (dispatch, getState) => {
+    dispatch(setResetAction());
+  };
+}
+
 function setRegexAction(regex) {
   return {
     type: "SET_REGEX",
@@ -62,6 +74,20 @@ function setSortColOrderAction(sortCol, sortOrder) {
 export function setSortColOrder(sortCol, sortOrder) {
   return (dispatch, getState) => {
     dispatch(setSortColOrderAction(sortCol, sortOrder));
+  };
+}
+
+function setDirectReportAction(manager_id, soldier_id) {
+  return {
+    type: "SET_DIRECT_REPORT",
+    manager_id,
+    soldier_id,
+  };
+}
+
+export function setDirectReport(manager_id, soldier_id) {
+  return (dispatch, getState) => {
+    dispatch(setDirectReportAction(manager_id, soldier_id));
   };
 }
 

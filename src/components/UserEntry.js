@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { LOGO_URL } from "../reducers/Constants";
 import { deleteUser, setID } from "../actions/index.js";
 
@@ -41,7 +40,7 @@ const UserEntry = (props) => {
           {user.superiorName}
         </Link>
       </td>
-      <td>{user.DSNum}</td>
+      <td>{user.directReport.length}</td>
       <td>
         <button className="btn btn-light text-primary">
           <Link to={`/EditUserPage/${user._id}`}>

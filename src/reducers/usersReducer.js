@@ -1,18 +1,17 @@
 import { RUN_STATUS } from "./Constants";
 
-const usersReducer = (
-  state = {
-    runStats: RUN_STATUS.FETCH_NEW,
-    error: "",
-    allUsers: [],
-    totalUserCount: 0,
-    sortCol: "startDate",
-    sortOrder: "desc",
-    regex: "",
-    id: "",
-  },
-  action
-) => {
+const defaultState = {
+  runStats: RUN_STATUS.FETCH_NEW,
+  error: "",
+  allUsers: [],
+  totalUserCount: 0,
+  sortCol: "startDate",
+  sortOrder: "desc",
+  regex: "",
+  id: "",
+};
+
+const usersReducer = (state = { ...defaultState }, action) => {
   switch (action.type) {
     case "SET_RUN_STATUS":
       return {
@@ -52,6 +51,8 @@ const usersReducer = (
         runStats: RUN_STATUS.FETCH_NEW,
         id: action.id,
       };
+    case "RESET":
+      return { ...defaultState };
     default:
       return state;
   }

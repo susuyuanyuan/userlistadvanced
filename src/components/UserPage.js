@@ -139,6 +139,7 @@ export function UserPage({ match, history }) {
       if (superior) {
         setSuperiorID(superior._id);
         setSuperiorName(superior.name);
+        dispatch(setDirectReport(superior._id, user._id));
       }
     } else {
       setSuperiorID("");
