@@ -4,6 +4,8 @@ const defaultState = {
   runStats: RUN_STATUS.FETCH_NEW,
   error: "",
   allUsers: [],
+  idToFetchDependent: "",
+  dependents: [],
   totalUserCount: 0,
   sortCol: "startDate",
   sortOrder: "desc",
@@ -25,6 +27,18 @@ const usersReducer = (state = { ...defaultState }, action) => {
         runStats: RUN_STATUS.READY_FOR_MORE,
         allUsers: action.users,
         totalUserCount: action.totalUserCount,
+      };
+    case "FETCH_DEPENDENT":
+      return {
+        ...state,
+        runStats: RUN_STATUS.LOADING,
+        idToFetchDependent: action.id,
+      };
+    case "DEPENDENT_FETCH_SUCCESS":
+      return {
+        ...state,
+        runStats: RUN_STATUS.READY_FOR_MORE,
+        dependents: action.dependents,
       };
     case "SET_SORT_COL_ORDER":
       return {

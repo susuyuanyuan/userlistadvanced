@@ -138,6 +138,32 @@ export function getUsers(offset, limit, sortCol, order, regex, id, overwrite) {
   };
 }
 
+export function getDependents(supervisorId) {
+  return (dispatch, getState) => {
+    if (getState().runStats === RUN_STATUS.LOADING) {
+      return;
+    }
+    dispatch(setRunStatus(RUN_STATUS.LOADING));
+    console.log(supervisorId);
+    axios
+      .get(URL + USER_API + "?superiorID=" + supervisorId)
+      .then((response) => {
+        // means there is no one
+        if (response.data.docs.length === 0) {
+          dispatch(setRunStatus(RUN_STATUS.READY_FOR_MORE));
+          return;
+        }
+        dispatch(
+          requestFetchSuccess(response.data.docs, response.data.totalDocs)
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        dispatch(requestFail(err));
+      });
+  };
+}
+
 // update or add user
 export function updateUser(user, history) {
   console.log(user);

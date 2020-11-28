@@ -1,14 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { LOGO_URL } from "../reducers/Constants";
-import { deleteUser, setID } from "../actions/index.js";
+import { deleteUser, setID, getDependents } from "../actions/index.js";
 
 const UserEntry = (props) => {
   const user = props.user;
+
   const dispatch = props.dispatch;
+
   const formatDate = (date) => {
     return require("moment")(date).format("YYYY-MM-DD");
   };
+
+  const onClickDSNum = () => {
+    if (user.DSNum && user.DSNum > 0) {
+      dispatch(getDependents(user._id));
+    }
+  };
+
   return (
     <tr key={user._id} className="text-capitalize">
       <td>
@@ -40,7 +49,9 @@ const UserEntry = (props) => {
           {user.superiorName}
         </Link>
       </td>
-      <td>{user.directReport.length}</td>
+      <td id="DSNumCell" onClick={onClickDSNum}>
+        {user.DSNum ? user.DSNum : ""}
+      </td>
       <td>
         <button className="btn btn-light text-primary">
           <Link to={`/EditUserPage/${user._id}`}>

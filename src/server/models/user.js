@@ -43,9 +43,8 @@ let userSchema = mongoose.Schema(
     superiorName: {
       type: String,
     },
-    directReport: {
-      type: Arrays,
-      default: [],
+    DSNum: {
+      type: Number,
     },
   },
   { collection: "users" }

@@ -100,7 +100,7 @@ export function UserList() {
               {sortIcon("Phone", "phone")}
               {sortIcon("Email", "email")}
               {sortIcon("Superior", "superiorName")}
-              {sortIcon("# of D. S.", "directReport")}
+              {sortIcon("# of D. S.", "DSNum")}
               <th>Edit</th>
               <th>Delete</th>
             </tr>
@@ -133,9 +133,11 @@ export function UserList() {
           <table id="tableContent" className="table table-striped">
             <thead></thead>
             <tbody>
-              {allUsers.map((user) => (
-                <UserEntry user={user} dispatch={dispatch} key={user._id} />
-              ))}
+              {allUsers.map((user) => {
+                return user ? (
+                  <UserEntry user={user} dispatch={dispatch} key={user._id} />
+                ) : undefined;
+              })}
             </tbody>
           </table>
         </InfiniteScroll>

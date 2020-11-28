@@ -2,46 +2,48 @@ let userRouter = require("express").Router();
 let User = require("../models/user.js");
 
 //get users
-userRouter.get("/", (req, res) => {
-  console.log(req.query);
-  // update :use if else, id should use findById
-  // use find() method to return all Users
-  if (req.query.id !== "") {
-    User.findById(req.query.id, (err, result) => {
-      if (err) {
-        console.error("Failed to find superior" + err);
-        res.status(500).send(err);
-      } else {
-        res.json({ docs: [result], totalDocs: 1 });
+userRouter.get("/", async (req, res) => {
+  const query = req.query;
+  try {
+    // update :use if else, id should use findById
+    // use find() method to return all Users
+    if (query.id && query.id !== "") {
+      const result = await User.findById(query.id);
+      res.json({ docs: [result], totalDocs: 1 });
+    } else {
+      const queryParams = {};
+      if (query.regex) {
+        queryParams["$or"] = [
+          { name: { $regex: query.regex } },
+          { rank: { $regex: query.regex } },
+          { sex: { $regex: query.regex } },
+          { phone: { $regex: query.regex } },
+          { email: { $regex: query.regex } },
+          { superiorName: { $regex: query.regex } },
+        ];
       }
-    });
-  } else {
-    User.paginate(
-      {
-        $or: [
-          { name: { $regex: req.query.regex } },
-          { rank: { $regex: req.query.regex } },
-          { sex: { $regex: req.query.regex } },
-          { phone: { $regex: req.query.regex } },
-          { email: { $regex: req.query.regex } },
-          { superiorName: { $regex: req.query.regex } },
-        ],
-      },
-      {
-        offset: req.query.offset,
-        limit: req.query.limit,
-        sort: { [req.query.sortCol]: req.query.order },
-      },
-      (err, result) => {
-        if (err) {
-          console.error("Failed to find all: " + err);
-          res.status(500).send(err);
-        } else {
-          res.json(result);
-          console.log(result.totalDocs);
-        }
+
+      if (query.superiorID) {
+        queryParams["superiorID"] = query.superiorID;
       }
-    );
+
+      const options = {};
+      if (query.offset) {
+        options["offset"] = query.offset;
+      }
+      if (query.limit) {
+        options["limit"] = query.limit;
+      }
+      if (query.sortCol && query.order) {
+        options["sort"] = { [query.sortCol]: query.order };
+      }
+
+      const result = await User.paginate(queryParams, options);
+      res.json(result);
+    }
+  } catch (err) {
+    console.error("Failed to find: " + err);
+    res.status(500).send(err);
   }
 });
 
@@ -56,49 +58,61 @@ userRouter.get("/count", (req, res) => {
   });
 });
 
-// update User
-userRouter.post("/", (req, res) => {
-  const user = req.body;
-  console.log(user);
-  if (user._id === null || user._id === "") {
-    let newUser = new User(req.body);
-    let error = newUser.validateSync();
-    if (error) {
-      console.error("Failed to validate: " + error);
-      res.status(500).send(error);
-      return;
-    }
-    // save new user to db
-    newUser.save((err, result) => {
-      if (result.avatar) {
-        console.error("Has Avatar");
-      }
-      if (err) {
-        console.error("Failed to save: " + err);
-        res.status(500).send(err);
-      } else {
-        res.sendStatus(200);
-      }
-    });
+async function incrementDSNum(id, increments) {
+  const this_user = await User.findById(id);
+  if (!this_user.DSNum) {
+    this_user.DSNum = 0;
+  }
+
+  this_user.DSNum += increments;
+
+  await this_user.updateOne(this_user);
+}
+
+async function updateDSNum(previousID, currentId) {
+  // if previously user doesn't have superior
+  // but this user has, update the superior DSNum
+  if (!previousID && currentId) {
+    await incrementDSNum(currentId, 1);
     return;
   }
 
-  User.findById(user._id, function (find_err, doc) {
-    if (find_err) {
-      console.error("Failed to find: " + find_err);
-      res.status(500).send(find_err);
-    } else {
-      let needToUpdate = req.body.superiorID !== doc.superiorID;
-      doc.updateOne(req.body, (update_error) => {
-        if (update_error) {
-          console.error("Failed to update: " + update_error);
-          res.status(500).send(update_error);
-          return;
-        }
-        res.sendStatus(200);
-      });
+  // if currentId is empty, previous Id -1
+  if (!currentId) {
+    await incrementDSNum(previousID, -1);
+    return;
+  }
+
+  // if the superior changed
+  if (previousID && previousID !== currentId) {
+    await incrementDSNum(previousID, -1);
+    if (currentId) {
+      await incrementDSNum(currentId, 1);
     }
-  });
+  }
+}
+
+// update User
+userRouter.post("/", async (req, res) => {
+  try {
+    const input_user = req.body;
+    if (input_user._id === null || input_user._id === "") {
+      let newUser = new User(input_user);
+      await newUser.validate();
+      await newUser.save();
+      res.sendStatus(200);
+      return;
+    }
+
+    const user = await User.findById(input_user._id);
+    updateDSNum(user.superiorID, input_user.superiorID);
+    await user.updateOne(input_user);
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.send(500).send(error);
+  }
 });
 
 // delete user
